@@ -76,7 +76,6 @@ if ('share' in navigator) {
 /* Only register a service worker if it's supported */
 if ('serviceWorker' in navigator) {
   console.log('👍', 'navigator.serviceWorker is supported');
-  console.log('butts!');
 
   navigator.serviceWorker.register('/service-worker.js').then(() => {
     console.log('👍', 'worker registered');
