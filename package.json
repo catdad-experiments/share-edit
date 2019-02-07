@@ -4,7 +4,8 @@
   "description": "share-edit",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx multispawn npx http-server -p 8000; npx localtunnel --port 8000"
   },
   "repository": {
     "type": "git",
