@@ -82,15 +82,19 @@ if ('serviceWorker' in navigator) {
     console.warn('👎', 'worker errored', err);
   });
 
-  navigator.serviceWorker.addEventListener('message', ev => {
+  navigator.serviceWorker.onmessage = ev => {
     const data = ev.data;
 
     if (data.action === 'log') {
       return void console.log('worker:', ...data.args);
     }
 
+    if (data.action === 'load-image') {
+      console.log('LOAD IMAGE!!');
+    }
+
     console.log('worker message', ev.data);
-  });
+  };
 
   console.log('post message handler registered');
 }

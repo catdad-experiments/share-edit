@@ -6,7 +6,11 @@ const WORKER = '👷';
 const console = (() => {
   const send = (...args) => {
     self.clients.matchAll().then(clients => {
-      console.log('sending message to', clients);
+      if (!clients.length) {
+        setTimeout(() => {
+          send(...args);
+        }, 100);
+      }
 
       clients.forEach(client => {
         client.postMessage({
@@ -34,26 +38,17 @@ const nextMessage = str => new Promise(resolve => {
 });
 
 const serveShareTarget = event => {
-  const dataPromise = event.request.formData();
-
   // Redirect so the user can refresh the page without resending data.
   event.respondWith(Response.redirect('/?share-target'));
 
-  event.waitUntil((async () => {
-    // The page sends this message to tell the service worker it's ready to receive the file.
-    await nextMessage('share-ready');
+  event.waitUntil(async function () {
+    // nextMessage('share-ready');
 
-    console.log(WORKER, 'share ready');
-
+    const data = await event.request.formData();
     const client = await self.clients.get(event.resultingClientId);
-
-    client.postMessage({ action: 'log', message: 'we got this far' });
-
-    const data = await dataPromise;
     const file = data.get('file');
-
     client.postMessage({ file, action: 'load-image' });
-  })());
+  }());
 };
 
 self.addEventListener('message', event => {
