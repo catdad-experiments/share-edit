@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx multispawn npx http-server -p 8000 -c-1 ! npx localtunnel --port 8000"
+    "start": "npx multispawn npx serve -l 8000 ! npx localtunnel --port 8000"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
   "homepage": "https://github.com/catdad-experiments/share-edit#readme",
   "devDependencies": {
     "eslint": "^5.16.0",
-    "http-server": "^0.11.1",
     "localtunnel": "^2.0.0",
-    "multispawn": "^1.0.0"
+    "multispawn": "^1.0.0",
+    "serve": "^11.2.0"
   }
 }
