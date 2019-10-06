@@ -38,6 +38,16 @@ butInstall.addEventListener('click', () => {
   });
 });
 
+function displayImage(file) {
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+  document.body.append(img);
+}
+
 if ('share' in navigator) {
   console.log('👍', 'navigator.share is supported');
 
@@ -82,7 +92,7 @@ if ('serviceWorker' in navigator) {
     console.warn('👎', 'worker errored', err);
   });
 
-  navigator.serviceWorker.onmessage = ev => {
+  navigator.serviceWorker.addEventListener('message', ev => {
     const data = ev.data;
 
     if (data.action === 'log') {
@@ -91,10 +101,11 @@ if ('serviceWorker' in navigator) {
 
     if (data.action === 'load-image') {
       console.log('LOAD IMAGE!!');
+      displayImage(data.file);
     }
 
     console.log('worker message', ev.data);
-  };
+  });
 
   console.log('post message handler registered');
 }
