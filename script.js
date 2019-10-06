@@ -1,7 +1,6 @@
-/* jshint esversion: 6, browser: true, devel: true */
+/* eslint-disable no-console */
 
 const divResult = document.getElementById('result');
-const divInstall = document.getElementById('installContainer');
 const butInstall = document.getElementById('butInstall');
 const butShare = document.getElementById('butShare');
 
@@ -11,6 +10,10 @@ window.addEventListener('beforeinstallprompt', (event) => {
   window.deferredPrompt = event;
   // Remove the 'hidden' class from the install button container
   butInstall.removeAttribute('disabled');
+});
+
+window.addEventListener('appinstalled', (event) => {
+  console.log('👍', 'appinstalled', event);
 });
 
 butInstall.addEventListener('click', () => {
@@ -35,10 +38,6 @@ butInstall.addEventListener('click', () => {
   });
 });
 
-window.addEventListener('appinstalled', (event) => {
-  console.log('👍', 'appinstalled', event);
-});
-
 if ('share' in navigator) {
   console.log('👍', 'navigator.share is supported');
 
@@ -55,16 +54,16 @@ if ('share' in navigator) {
     };
 
     navigator.share(shareOpts)
-        .then((e) => {
-          const msg = 'navigator.share succeeded.';
-          divResult.textContent = msg;
-          console.log('👍', msg, e);
-        })
-        .catch((err) => {
-          const msg = 'navigator.share failed';
-          divResult.textContent = `${msg}\n${JSON.stringify(err)}`;
-          console.error('👎', msg, err);
-        });
+      .then((e) => {
+        const msg = 'navigator.share succeeded.';
+        divResult.textContent = msg;
+        console.log('👍', msg, e);
+      })
+      .catch((err) => {
+        const msg = 'navigator.share failed';
+        divResult.textContent = `${msg}\n${JSON.stringify(err)}`;
+        console.error('👎', msg, err);
+      });
   });
 } else  {
   console.warn('👎', 'navigator.share is not supported');
@@ -82,4 +81,18 @@ if ('serviceWorker' in navigator) {
   }).catch(err => {
     console.warn('👎', 'worker errored', err);
   });
+
+  navigator.serviceWorker.addEventListener('message', ev => {
+    const data = ev.data;
+
+    if (data.action === 'log') {
+      return void console.log('worker:', ...data.args);
+    }
+
+    console.log('worker message', ev.data);
+  });
+
+  console.log('post message handler registered');
 }
+
+console.log('url', window.location.href);
