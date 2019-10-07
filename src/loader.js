@@ -51,7 +51,9 @@ window.addEventListener('load', function () {
 
   // detect missing features in the browser
   var missingFeatures = [
-    'navigator.serviceWorker', 'navigator.share', 'Promise'
+    'navigator.serviceWorker',
+    // 'navigator.share',
+    'Promise'
   ].filter(function (name) {
     return !name.split('.').reduce(function (obj, path) {
       return (obj || {})[path];
@@ -103,30 +105,17 @@ window.addEventListener('load', function () {
   // load all the modules from the server directly
   Promise.all([
     loadScript('src/event-emitter.js'),
-    loadScript('src/storage.js'),
-    loadScript('src/controls.js'),
-    loadScript('src/get-video.js'),
-    loadScript('src/record-photos.js'),
-    loadScript('src/display-photos.js'),
+    loadScript('src/setup.js'),
   ]).then(function () {
     // set up a global event emitter
     context.events = modules['event-emitter']();
 
-    // set up a global storage api
-    context.storage = modules['storage']();
-
-    var controlsDestroy = modules['controls']();
-    var getVideoDestroy = modules['get-video']();
-    var recordPhotosDestroy = modules['record-photos']();
-    var displayPhotosDestroy = modules['display-photos']();
+    var setupDestroy = modules['setup']();
 
     context.events.on('error', function (err) {
       onError(err);
 
-      controlsDestroy();
-      getVideoDestroy();
-      recordPhotosDestroy();
-      displayPhotosDestroy();
+      setupDestroy();
     });
 
     context.events.on('warn', function (err) {
