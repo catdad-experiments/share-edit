@@ -41,9 +41,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/onscreen-console@1.1.1/dist/min/onscreen-console.min.js"></script>
   <script>
-//    oConsole.enable();
-    // show the onscreen-console panel
-//    oConsole.show();
+    (function () {
+      var ua = navigator.userAgent.toLowerCase();
+      var isAndroid = ua.indexOf('android') > -1;
+      if (isAndroid) {
+        oConsole.enable();
+        oConsole.show();
+      }
+    })();
   </script>
 
   <script src="src/loader.js"></script>
