@@ -163,16 +163,22 @@
     Promise.all([
       loadScript('src/event-emitter.js'),
       loadScript('src/setup.js'),
+      loadScript('src/image.js'),
+      loadScript('src/open.js'),
     ]).then(function () {
       // set up a global event emitter
       context.events = modules['event-emitter']();
 
       var setupDestroy = modules['setup']();
+      var imageDestroy = modules['image']();
+      var openDestroy = modules['open']();
 
       context.events.on('error', function (err) {
         onError(err);
 
         setupDestroy();
+        imageDestroy();
+        openDestroy();
       });
 
       context.events.on('warn', function (err) {
