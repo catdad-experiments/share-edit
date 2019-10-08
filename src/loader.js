@@ -15,7 +15,7 @@ window.addEventListener('appinstalled', (event) => {
 if ('serviceWorker' in navigator) {
   console.log('👍', 'navigator.serviceWorker is supported');
 
-  navigator.serviceWorker.register('/service-worker.js').then(() => {
+  navigator.serviceWorker.register('/service-worker.js', { scope: './' }).then(() => {
     console.log('👍', 'worker registered');
   }).catch(err => {
     console.warn('👎', 'worker errored', err);
