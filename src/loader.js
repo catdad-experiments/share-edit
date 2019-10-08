@@ -1,3 +1,53 @@
+/* eslint-disable no-console */
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  console.log('👍', 'beforeinstallprompt', event);
+  // Stash the event so it can be triggered later.
+  window.deferredPrompt = event;
+  // Remove the 'hidden' class from the install button container
+  console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
+});
+
+window.addEventListener('appinstalled', (event) => {
+  console.log('👍', 'appinstalled', event);
+});
+
+if ('serviceWorker' in navigator) {
+  console.log('👍', 'navigator.serviceWorker is supported');
+
+  navigator.serviceWorker.register('/src/service-worker.js').then(() => {
+    console.log('👍', 'worker registered');
+  }).catch(err => {
+    console.warn('👎', 'worker errored', err);
+  });
+
+  navigator.serviceWorker.addEventListener('message', ev => {
+    const data = ev.data;
+
+    if (data.action === 'log') {
+      return void console.log('worker:', ...data.args);
+    }
+
+    if (data.action === 'load-image') {
+      console.log('LOAD IMAGE!!');
+
+      (function displayImage(file) {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+        document.body.append(img);
+      })(data.file);
+    }
+
+    console.log('worker message', ev.data);
+  });
+}
+
+/* Framework stuff is below */
+
 window.addEventListener('load', function () {
   var header = document.querySelector('header');
   var headerContainer = header.querySelector('.header-container');
