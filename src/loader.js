@@ -16,16 +16,15 @@
     };
   }());
 
-  window.addEventListener('beforeinstallprompt', (event) => {
-    console.log('👍', 'beforeinstallprompt', event);
+  window.addEventListener('beforeinstallprompt', function (event) {
     // Stash the event so it can be triggered later.
     window.deferredPrompt = event;
     // Remove the 'hidden' class from the install button container
     console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
   });
 
-  window.addEventListener('appinstalled', (event) => {
-    console.log('👍', 'appinstalled', event);
+  window.addEventListener('appinstalled', function () {
+    console.log('👍', 'app installed');
   });
 
   if ('serviceWorker' in navigator) {
@@ -38,6 +37,7 @@
     });
 
     navigator.serviceWorker.addEventListener('message', ev => {
+      // TODO no esnext in this file?
       const data = ev.data;
 
       if (data.action === 'log') {
