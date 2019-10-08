@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Share Edit</title>
   <meta charset="UTF-8">
@@ -10,27 +11,49 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#202124">
   <link rel="icon" type="image/png" href="assets/icon-512.png" />
-  <link rel="stylesheet" href="src/style.css" />
-</head>
-<body>
-  <p id="shareNotSupported" class="hidden">
-    <code>navigator.share</code> is not supported in this
-    browser, try sharing from another app instead.
-  </p>
+  <link rel="stylesheet" type="text/css" href="src/style.css">
 
-  <!-- Install/Share buttons, disabled by default -->
-  <div id="installContainer">
-    <button id="butShare" type="button" disabled>Share</button>
-    <button id="butInstall" type="button" disabled>Install</button>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <div class="header-container">
+      <div class="limit">
+        <div id="prompt" class="prompt hide"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container limit">
+    <div class="contents">
+      <button id="install">Install</button>
+    </div>
   </div>
 
-  <!-- import the webpage's javascript file -->
+  <footer>
+    <a href="https://github.com/catdad">
+      <i class="material-icons material-inline">code</i>
+      <span> with </span>
+      <i class="material-icons material-inline">favorite</i>
+      <span> by <b>catdad</b></span>
+    </a>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/onscreen-console@1.1.1/dist/min/onscreen-console.min.js"></script>
   <script>
-    oConsole.enable();
-    // show the onscreen-console panel
-    oConsole.show();
+    (function () {
+      var ua = navigator.userAgent.toLowerCase();
+      var isAndroid = ua.indexOf('android') > -1;
+      if (isAndroid) {
+        oConsole.enable();
+        oConsole.show();
+      }
+    })();
   </script>
-  <script src="src/script.js"></script>
+
+  <script src="src/loader.js"></script>
+  <script src="/analytics.js"></script>
 </body>
+
 </html>
