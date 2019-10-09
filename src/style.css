@@ -108,6 +108,8 @@ a:hover {
 .main {
   position: relative;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .controls {
@@ -118,6 +120,7 @@ a:hover {
 .renderer {
   display: block;
   position: relative;
+  margin: auto;
   width: 100%;
   height: 100%;
   background: black;

@@ -8,20 +8,7 @@
     const { events } = context;
 
     const canvas = document.querySelector('#canvas');
-    const container = canvas.parentElement;
     const ctx = canvas.getContext('2d');
-
-    const onResize = () => {
-      const bb = container.getBoundingClientRect();
-      console.log(bb);
-
-      canvas.style.height = `${bb.height}px`;
-      canvas.style.width = `${bb.width}px`;
-      canvas.width = bb.width;
-      canvas.height = bb.height;
-    };
-
-    onResize();
 
     const onFile = ({ file }) => {
       const img = new Image();
@@ -29,17 +16,20 @@
       img.onload = () => {
         URL.revokeObjectURL(url);
 
-        ctx.drawImage(img, 0, 0);
+        const { naturalWidth: w, naturalHeight: h } = img;
+
+        canvas.width = w;
+        canvas.height = h;
+
+        ctx.drawImage(img, 0, 0); //, w, h, 0, 0, cW, cH);
       };
       img.src = url;
     };
 
     events.on('display-image', onFile);
-    window.addEventListener('resize', onResize);
 
     return function destroy() {
       events.off('display-image', onFile);
-      window.removeEventListener('resize', onResize);
     };
   });
 })(window.registerModule);
