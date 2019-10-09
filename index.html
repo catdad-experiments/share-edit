@@ -63,7 +63,9 @@
   <script type="module">
     import loader from './src/loader.js';
 
+    const headerContainer = document.querySelector('.header-container');
     const prompt = document.querySelector('#prompt');
+    headerContainer.classList.remove('error');
     prompt.classList.add('hide');
 
     window.addEventListener('load', function () {
