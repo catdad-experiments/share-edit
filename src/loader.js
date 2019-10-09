@@ -15,14 +15,14 @@ let events = (function () {
   };
 }());
 
-window.addEventListener('beforeinstallprompt', function (event) {
+window.addEventListener('beforeinstallprompt', (ev) => {
   // Stash the event so it can be triggered later.
-  window.deferredPrompt = event;
+  window.deferredPrompt = ev;
   // Remove the 'hidden' class from the install button container
   console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
 });
 
-window.addEventListener('appinstalled', function () {
+window.addEventListener('appinstalled', () => {
   console.log('👍', 'app installed');
 });
 
@@ -35,8 +35,7 @@ if ('serviceWorker' in navigator) {
     console.warn('👎', 'worker errored', err);
   });
 
-  navigator.serviceWorker.addEventListener('message', ev => {
-    // TODO no esnext in this file?
+  navigator.serviceWorker.addEventListener('message', (ev) => {
     const data = ev.data;
 
     if (data.action === 'log') {
@@ -53,9 +52,9 @@ if ('serviceWorker' in navigator) {
 }
 
 export default () => {
-  var header = document.querySelector('header');
-  var headerContainer = header.querySelector('.header-container');
-  var prompt = document.querySelector('#prompt');
+  const header = document.querySelector('header');
+  const headerContainer = header.querySelector('.header-container');
+  const prompt = document.querySelector('#prompt');
 
   function clearPrompt() {
     prompt.classList.add('hide');
@@ -70,8 +69,8 @@ export default () => {
     // clean the prompt
     prompt.innerHTML = '';
 
-    message.forEach(function (text) {
-      var paragraph = document.createElement('p');
+    message.forEach((text) => {
+      const paragraph = document.createElement('p');
       paragraph.appendChild(document.createTextNode(text.toString()));
 
       prompt.appendChild(paragraph);
