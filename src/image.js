@@ -1,35 +1,26 @@
-/* eslint-disable no-console */
+export default ({ events }) => {
+  const canvas = document.querySelector('#canvas');
+  const ctx = canvas.getContext('2d');
 
-(function (register) {
-  const NAME = 'image';
+  const onFile = ({ file }) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
 
-  register(NAME, function () {
-    const context = this;
-    const { events } = context;
+      const { naturalWidth: w, naturalHeight: h } = img;
 
-    const canvas = document.querySelector('#canvas');
-    const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
 
-    const onFile = ({ file }) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-
-        const { naturalWidth: w, naturalHeight: h } = img;
-
-        canvas.width = w;
-        canvas.height = h;
-
-        ctx.drawImage(img, 0, 0);
-      };
-      img.src = url;
+      ctx.drawImage(img, 0, 0);
     };
+    img.src = url;
+  };
 
-    events.on('display-image', onFile);
+  events.on('display-image', onFile);
 
-    return function destroy() {
-      events.off('display-image', onFile);
-    };
-  });
-})(window.registerModule);
+  return function destroy() {
+    events.off('display-image', onFile);
+  };
+};
