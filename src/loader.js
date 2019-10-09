@@ -1,58 +1,56 @@
 /* eslint-disable no-console */
 
-  var events = (function () {
-    var collection = [];
+var events = (function () {
+  var collection = [];
 
-    return {
-      emit: function () {
-        collection.push(arguments);
-      },
-      flush: function (emitter) {
-        collection.forEach(function (args) {
-          emitter.emit.apply(emitter, args);
-        });
-      }
-    };
-  }());
+  return {
+    emit: function () {
+      collection.push(arguments);
+    },
+    flush: function (emitter) {
+      collection.forEach(function (args) {
+        emitter.emit.apply(emitter, args);
+      });
+    }
+  };
+}());
 
-  window.addEventListener('beforeinstallprompt', function (event) {
-    // Stash the event so it can be triggered later.
-    window.deferredPrompt = event;
-    // Remove the 'hidden' class from the install button container
-    console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
+window.addEventListener('beforeinstallprompt', function (event) {
+  // Stash the event so it can be triggered later.
+  window.deferredPrompt = event;
+  // Remove the 'hidden' class from the install button container
+  console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
+});
+
+window.addEventListener('appinstalled', function () {
+  console.log('👍', 'app installed');
+});
+
+if ('serviceWorker' in navigator) {
+  console.log('👍', 'navigator.serviceWorker is supported');
+
+  navigator.serviceWorker.register('/service-worker.js', { scope: './' }).then(() => {
+    console.log('👍', 'worker registered');
+  }).catch(err => {
+    console.warn('👎', 'worker errored', err);
   });
 
-  window.addEventListener('appinstalled', function () {
-    console.log('👍', 'app installed');
+  navigator.serviceWorker.addEventListener('message', ev => {
+    // TODO no esnext in this file?
+    const data = ev.data;
+
+    if (data.action === 'log') {
+      return void console.log('worker:', ...data.args);
+    }
+
+    if (data.action === 'load-image') {
+      console.log('LOAD IMAGE!!');
+      events.emit('display-image', { file: data.file });
+    }
+
+    console.log('worker message', ev.data);
   });
-
-  if ('serviceWorker' in navigator) {
-    console.log('👍', 'navigator.serviceWorker is supported');
-
-    navigator.serviceWorker.register('/service-worker.js', { scope: './' }).then(() => {
-      console.log('👍', 'worker registered');
-    }).catch(err => {
-      console.warn('👎', 'worker errored', err);
-    });
-
-    navigator.serviceWorker.addEventListener('message', ev => {
-      // TODO no esnext in this file?
-      const data = ev.data;
-
-      if (data.action === 'log') {
-        return void console.log('worker:', ...data.args);
-      }
-
-      if (data.action === 'load-image') {
-        console.log('LOAD IMAGE!!');
-        events.emit('display-image', { file: data.file });
-      }
-
-      console.log('worker message', ev.data);
-    });
-  }
-
-  /* Framework stuff is below */
+}
 
 export default () => {
   var header = document.querySelector('header');
