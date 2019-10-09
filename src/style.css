@@ -14,35 +14,18 @@ html, body {
   box-sizing: border-box;
 }
 
-header {
+.header-container {
   position: absolute;
   top: 0;
   width: 100%;
-  height: 0;
+  z-index: 1;
   overflow: visible;
-}
-
-.header-container {
-  position: relative;
-  width: 100%;
   padding: 0.2em;
 }
 
 .header-container.error {
   font-weight: bold;
   background: #d64c4f;
-}
-
-footer {
-  height: 2em;
-  padding: 6px;
-  text-align: center;
-
-  background: rgba(255,255,255,0.1);
-}
-
-footer span {
-  vertical-align: middle;
 }
 
 .material-icons.material-inline {
@@ -53,10 +36,7 @@ footer span {
 
 .container {
   position: relative;
-  min-height: 100%;
-
-  /* clear the footer */
-  margin-bottom: -2em;
+  height: 100vh;
 
   display: flex;
   flex-direction: column;

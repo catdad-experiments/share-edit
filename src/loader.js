@@ -52,8 +52,7 @@ if ('serviceWorker' in navigator) {
 }
 
 export default () => {
-  const header = document.querySelector('header');
-  const headerContainer = header.querySelector('.header-container');
+  const headerContainer = document.querySelector('.header-container');
   const prompt = document.querySelector('#prompt');
 
   function clearPrompt() {
