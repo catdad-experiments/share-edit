@@ -143,44 +143,24 @@ export default () => {
     return (new Function(`return import('${name}')`))().then(m => m.default);
   }
 
-  var context = {
-    onError: onError
-  };
-
-  var modules = {};
-
-  window.registerModule = function (name, module) {
-    // this module loader is stupid, it can only work with
-    // functions... and just for fun, we'll say that all
-    // the functions return promises
-    modules[name] = module.bind(context);
-  };
-
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
     load('./setup.js'),
     load('./image.js'),
     load('./open.js'),
-  ]).then(function ([
+  ]).then(([
     eventEmitter,
-    setup,
-    image,
-    open
-  ]) {
+    ...modules
+  ]) => {
     // set up a global event emitter
-    context.events = eventEmitter();
-
-    var setupDestroy = setup(context);
-    var imageDestroy = image(context);
-    var openDestroy = open(context);
+    const context = { events: eventEmitter() };
+    const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {
       onError(err);
 
-      setupDestroy();
-      imageDestroy();
-      openDestroy();
+      destroys.forEach(d => d());
     });
 
     context.events.on('warn', function (err) {
@@ -194,16 +174,7 @@ export default () => {
     events.flush(context.events);
     events = context.events;
   }).catch(function catchErr(err) {
-    if (context.events) {
-      context.events.emit('error', err);
-      return onError(err);
-    }
-
-    if (modules['event-emitter']) {
-      context.events = modules['event-emitter']();
-      return catchErr(err);
-    }
-
+    events.emit('error', err);
     onError(err);
   });
 };
