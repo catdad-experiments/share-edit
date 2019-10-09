@@ -21,7 +21,7 @@
         canvas.width = w;
         canvas.height = h;
 
-        ctx.drawImage(img, 0, 0); //, w, h, 0, 0, cW, cH);
+        ctx.drawImage(img, 0, 0);
       };
       img.src = url;
     };
