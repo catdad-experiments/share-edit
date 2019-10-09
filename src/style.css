@@ -42,35 +42,11 @@ html, body {
   flex-direction: column;
 }
 
-.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.container:after {
-  content: '';
-  display: block;
-  /* clear the footer */
-  height: 2em;
-}
-
 .contents {
   width: 100%;
-  margin: auto;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-}
-
-a {
-  text-decoration: none;
-  color: white;
-  opacity: 0.85;
-  will-change: opacity;
-}
-
-a:hover {
-  opacity: 1;
 }
 
 .limit {
