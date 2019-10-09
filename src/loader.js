@@ -108,11 +108,25 @@ export default () => {
     'navigator.serviceWorker',
     // 'navigator.share',
     'Promise',
+    ['dynamic import', () => {
+      try {
+        new Function('import("")');
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }]
   ].filter(function (name) {
+    if (Array.isArray(name)) {
+      const [, test] = name;
+
+      return !test();
+    }
+
     return !name.split('.').reduce(function (obj, path) {
       return (obj || {})[path];
     }, window);
-  });
+  }).map(v => Array.isArray(v) ? v[0] : v);
 
   if (missingFeatures.length) {
     return onMissingFeatures(missingFeatures.join(', '));
