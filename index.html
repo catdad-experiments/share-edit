@@ -18,9 +18,11 @@
 
 <body>
   <header>
-    <div class="header-container">
+    <div class="header-container error">
       <div class="limit">
-        <div id="prompt" class="prompt hide"></div>
+        <div id="prompt" class="prompt">
+          <p>This browser is not supported.</p>
+        </div>
       </div>
     </div>
   </header>
@@ -58,7 +60,16 @@
     })();
   </script>
 
-  <script src="src/loader.js"></script>
+  <script type="module">
+    import loader from './src/loader.js';
+
+    const prompt = document.querySelector('#prompt');
+    prompt.classList.add('hide');
+
+    window.addEventListener('load', function () {
+      loader();
+    });
+  </script>
   <script src="/analytics.js"></script>
 </body>
 
