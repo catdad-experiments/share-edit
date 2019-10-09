@@ -123,24 +123,8 @@ export default () => {
   // things now
   // ------------------------------------------------
 
-  // super simple module loader, because I don't want to
-  // deal with build for this demo
-  function loadScript(name) {
-    return new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
-
-      script.onload = function () {
-        resolve();
-      };
-
-      script.onerror = function () {
-        reject(new Error(name + ' failed to load'));
-      };
-
-      script.src = name;
-
-      document.head.appendChild(script);
-    });
+  function load(name) {
+    return import(name).then(m => m.default);
   }
 
   var context = {
@@ -158,17 +142,22 @@ export default () => {
 
   // load all the modules from the server directly
   Promise.all([
-    loadScript('src/event-emitter.js'),
-    loadScript('src/setup.js'),
-    loadScript('src/image.js'),
-    loadScript('src/open.js'),
-  ]).then(function () {
+    load('./event-emitter.js'),
+    load('./setup.js'),
+    load('./image.js'),
+    load('./open.js'),
+  ]).then(function ([
+    eventEmitter,
+    setup,
+    image,
+    open
+  ]) {
     // set up a global event emitter
-    context.events = modules['event-emitter']();
+    context.events = eventEmitter();
 
-    var setupDestroy = modules['setup']();
-    var imageDestroy = modules['image']();
-    var openDestroy = modules['open']();
+    var setupDestroy = setup(context);
+    var imageDestroy = image(context);
+    var openDestroy = open(context);
 
     context.events.on('error', function (err) {
       onError(err);
