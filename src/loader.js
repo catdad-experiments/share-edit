@@ -1,15 +1,15 @@
 /* eslint-disable no-console */
 
-var events = (function () {
-  var collection = [];
+let events = (function () {
+  let collection = [];
 
   return {
-    emit: function () {
-      collection.push(arguments);
+    emit: (...args) => {
+      collection.push(args);
     },
     flush: function (emitter) {
-      collection.forEach(function (args) {
-        emitter.emit.apply(emitter, args);
+      collection.forEach((args) => {
+        emitter.emit(...args);
       });
     }
   };
