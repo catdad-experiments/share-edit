@@ -109,7 +109,7 @@ export default () => {
     'Promise',
     ['dynamic import', () => {
       try {
-        new Function('import("")');
+        new Function('import("").catch(() => {})')();
         return true;
       } catch (err) {
         return false;
