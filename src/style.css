@@ -81,7 +81,7 @@ html, body {
 .controls i {
   position: relative;
   font-size: 2em;
-  margin: 0 16px;
+  margin: 0 0.5em;
   cursor: default;
 }
 
@@ -95,11 +95,11 @@ html, body {
 
 .controls.help i::after {
   content: attr(title);
-  font-size: 0.8em;
   position: absolute;
-  width: 100%;
-  bottom: 0;
+  font-size: 0.8em;
+  bottom: -0.1em;
   left: 0;
+  width: 100%;
   overflow: visible;
   display: block;
   font-family: sans-serif;
