@@ -105,8 +105,14 @@ export default ({ events }) => {
   const main = document.querySelector('.renderer');
   const canvas = document.querySelector('#canvas');
   const ctx = canvas.getContext('2d');
+  let cropTool;
 
   const onFile = ({ file }) => {
+    if (cropTool) {
+      cropTool.remove();
+      cropTool = null;
+    }
+
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -123,13 +129,18 @@ export default ({ events }) => {
   };
 
   const onCrop = () => {
-    const div = cropDiv(main.getBoundingClientRect());
-    main.appendChild(div);
+    cropTool = cropDiv(main.getBoundingClientRect());
+    main.appendChild(cropTool);
 
     console.log('CROP ✂');
   };
 
   const onDone = () => {
+    if (cropTool) {
+      cropTool.remove();
+      cropTool = null;
+    }
+
     console.log('DONE ✔');
   };
 
