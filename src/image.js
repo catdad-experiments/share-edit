@@ -106,6 +106,15 @@ export default ({ events }) => {
   const canvas = document.querySelector('#canvas');
   const ctx = canvas.getContext('2d');
   let cropTool;
+  let width;
+  let height;
+
+  const onImageData = ({ data }) => {
+    canvas.width = width = data.width;
+    canvas.height = height = data.height;
+
+    ctx.putImageData(data, 0, 0);
+  };
 
   const onFile = ({ file }) => {
     if (cropTool) {
@@ -120,8 +129,8 @@ export default ({ events }) => {
 
       const { naturalWidth: w, naturalHeight: h } = img;
 
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = width = w;
+      canvas.height = height = h;
 
       ctx.drawImage(img, 0, 0);
     };
@@ -137,8 +146,20 @@ export default ({ events }) => {
 
   const onDone = () => {
     if (cropTool) {
+      const cropBox = cropTool.getBoundingClientRect();
+      const imgBox = main.getBoundingClientRect();
+
+      const data = ctx.getImageData(
+        (cropBox.x - imgBox.x) / imgBox.width * width,
+        (cropBox.y - imgBox.y) / imgBox.height * height,
+        cropBox.width / imgBox.width * width,
+        cropBox.height / imgBox.height * height
+      );
+
       cropTool.remove();
       cropTool = null;
+
+      onImageData({ data });
     }
 
     console.log('DONE ✔');
