@@ -147,6 +147,7 @@ export default () => {
     load('./setup.js'),
     load('./image.js'),
     load('./open.js'),
+    load('./controls.js'),
     load('./window-size.js'),
   ]).then(([
     eventEmitter,
