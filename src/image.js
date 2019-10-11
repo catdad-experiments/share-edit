@@ -140,8 +140,6 @@ export default ({ events }) => {
   const onCrop = () => {
     cropTool = cropDiv(main.getBoundingClientRect());
     main.appendChild(cropTool);
-
-    console.log('CROP ✂');
   };
 
   const onDone = () => {
@@ -161,8 +159,6 @@ export default ({ events }) => {
 
       onImageData({ data });
     }
-
-    console.log('DONE ✔');
   };
 
   events.on('display-image', onFile);
