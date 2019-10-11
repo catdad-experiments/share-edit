@@ -36,8 +36,14 @@ export default ({ events }) => {
   };
 
   const onClick = () => void openInput.click();
-  const onDone = () => void showPalette('general');
-  const onCrop = () => void showPalette('crop');
+  const onDone = () => {
+    void showPalette('general');
+    events.emit('controls-done');
+  };
+  const onCrop = () => {
+    void showPalette('crop');
+    events.emit('controls-crop');
+  };
 
   help.addEventListener('click', onHelp);
   open.addEventListener('click', onClick);
