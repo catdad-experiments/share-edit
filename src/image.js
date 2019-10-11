@@ -9,9 +9,12 @@ const cropDiv = (bb) => {
     outline: '1px solid pink'
   });
 
+  const size = '11px';
+  const offset = '-6px';
+
   [{
     className: 'handle-n',
-    style: { top: '-4px', left: '25%', width: '50%', height: '8px' },
+    style: { top: offset, left: '25%', width: '50%', height: size },
     move: (ev) => {
       if (ev.clientY < bb.top) {
         div.style.top = '0px';
@@ -21,7 +24,7 @@ const cropDiv = (bb) => {
     }
   }, {
     className: 'handle-e',
-    style: { right: '-4px', top: '25%', width: '8px', height: '50%' },
+    style: { right: offset, top: '25%', width: size, height: '50%' },
     move: (ev) => {
       const right = bb.left + bb.width;
       if (ev.clientX > right) {
@@ -32,7 +35,7 @@ const cropDiv = (bb) => {
     }
   }, {
     className: 'handle-s',
-    style: { bottom: '-4px', left: '25%', width: '50%', height: '8px' },
+    style: { bottom: offset, left: '25%', width: '50%', height: size },
     move: (ev) => {
       const bottom = bb.top + bb.height;
       if (ev.clientY > bottom) {
@@ -43,7 +46,7 @@ const cropDiv = (bb) => {
     }
   }, {
     className: 'handle-w',
-    style: { left: '-4px', top: '25%', width: '8px', height: '50%' },
+    style: { left: offset, top: '25%', width: size, height: '50%' },
     move: (ev) => {
       if (ev.clientX < bb.left) {
         div.style.left = '0px';
@@ -59,12 +62,20 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
+    let dragging = false;
+
     const onStart = (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
 
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onEnd);
+      if (dragging) {
+        return;
+      }
+
+      dragging = true;
+
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onEnd);
     };
 
     const onMove = (ev) => {
@@ -75,14 +86,16 @@ const cropDiv = (bb) => {
     };
 
     const onEnd = (ev) => {
+      dragging = false;
       ev.preventDefault();
       ev.stopPropagation();
 
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onEnd);
     };
 
-    handle.addEventListener('mousedown', onStart);
+    handle.addEventListener('touchstart', onStart);
+    handle.addEventListener('pointerdown', onStart);
 
     div.appendChild(handle);
   });
