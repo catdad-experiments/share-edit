@@ -1,10 +1,16 @@
+:root {
+  --controls-height: 3em;
+  --background: #202124;
+  --foreground: #e5e5e5;
+}
+
 html, body {
   margin: 0;
   padding: 0;
-  background: #202124;
+  background: var(--background);
 
   font-family: sans-serif;
-  color: #e5e5e5;
+  color: var(--foreground);
   line-height: 1.2;
 
   height: 100%;
@@ -26,12 +32,6 @@ html, body {
 .header-container.error {
   font-weight: bold;
   background: #d64c4f;
-}
-
-.material-icons.material-inline {
-  font-size: 1.1rem;
-  line-height: 1;
-  vertical-align: bottom;
 }
 
 .container {
@@ -61,10 +61,6 @@ html, body {
 
 /** STUFF ABOVE IS STANDARD FRAMEWORK **/
 
-:root {
-  --controls-height: 2em;
-}
-
 .main {
   position: relative;
   flex-grow: 1;
@@ -77,6 +73,23 @@ html, body {
   position: relative;
   flex-grow: 0;
   height: var(--controls-height);
+  overflow: hidden;
+  width: 100%;
+}
+
+.controls i {
+  font-size: 2em;
+  margin: 0 16px;
+  cursor: default;
+}
+
+.palette {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
 }
 
 .renderer {
