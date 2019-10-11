@@ -1,4 +1,5 @@
 const cropDiv = (bb) => {
+  const color = '#039be5';
   const div = document.createElement('div');
   Object.assign(div.style, {
     position: 'absolute',
@@ -6,14 +7,14 @@ const cropDiv = (bb) => {
     left: 0,
     right: 0,
     bottom: 0,
-    outline: '1px solid pink'
+    outline: `1px solid ${color}`
   });
 
-  const size = '11px';
-  const offset = '-6px';
+  const size = '9px';
+  const offset = '-4px';
 
   [{
-    className: 'handle-n',
+    className: 'handle-h handle-n',
     style: { top: offset, left: '25%', width: '50%', height: size },
     move: (ev) => {
       if (ev.clientY < bb.top) {
@@ -23,7 +24,7 @@ const cropDiv = (bb) => {
       }
     }
   }, {
-    className: 'handle-e',
+    className: 'handle-v handle-e',
     style: { right: offset, top: '25%', width: size, height: '50%' },
     move: (ev) => {
       const right = bb.left + bb.width;
@@ -34,7 +35,7 @@ const cropDiv = (bb) => {
       }
     }
   }, {
-    className: 'handle-s',
+    className: 'handle-h handle-s',
     style: { bottom: offset, left: '25%', width: '50%', height: size },
     move: (ev) => {
       const bottom = bb.top + bb.height;
@@ -45,7 +46,7 @@ const cropDiv = (bb) => {
       }
     }
   }, {
-    className: 'handle-w',
+    className: 'handle-v handle-w',
     style: { left: offset, top: '25%', width: size, height: '50%' },
     move: (ev) => {
       if (ev.clientX < bb.left) {
@@ -57,8 +58,9 @@ const cropDiv = (bb) => {
   }].forEach(({ className, style, move }) => {
     const handle = document.createElement('div');
     Object.assign(handle.style, {
-      'background-color': 'pink',
       position: 'absolute',
+      'background-color': color,
+      'border-radius': offset.replace('-', '')
     }, style);
     handle.className = className;
 

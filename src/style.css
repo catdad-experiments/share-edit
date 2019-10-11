@@ -68,6 +68,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--controls-height));
+  overflow: hidden;
 }
 
 .controls {
@@ -128,3 +129,23 @@ html, body {
   max-width: 100%;
   max-height: 100%;
 }
+
+.handle-h::after,
+.handle-v::after {
+  --size: 24px;
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.handle-h::after {
+  transform: translate(0, calc(-1 * var(--size) * (0.25)));
+  height: var(--size);
+}
+
+.handle-v::after {
+  transform: translate(calc(-1 * var(--size) * (0.25)));
+  width: var(--size);
+}
+
