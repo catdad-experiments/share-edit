@@ -2,6 +2,7 @@
   --controls-height: 3em;
   --background: #202124;
   --foreground: #e5e5e5;
+  --full: calc(var(--vh, 1vh) * 100);
 }
 
 html, body {
@@ -36,7 +37,7 @@ html, body {
 
 .container {
   position: relative;
-  height: 100vh;
+  height: var(--full);
 
   display: flex;
   flex-direction: column;
