@@ -1,32 +1,56 @@
-const cropDiv = () => {
+const cropDiv = (bb) => {
   const div = document.createElement('div');
   Object.assign(div.style, {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    right: 0,
+    bottom: 0,
     outline: '1px solid pink'
   });
 
   [{
     className: 'handle-n',
     style: { top: '-4px', left: '25%', width: '50%', height: '8px' },
-    move: (bb) => {
-
+    move: (ev) => {
+      if (ev.clientY < bb.top) {
+        div.style.top = '0px';
+      } else {
+        div.style.top = `${ev.clientY - bb.top}px`;
+      }
     }
   }, {
     className: 'handle-e',
     style: { right: '-4px', top: '25%', width: '8px', height: '50%' },
-    move: () => {}
+    move: (ev) => {
+      const right = bb.left + bb.width;
+      if (ev.clientX > right) {
+        div.style.right = '0px';
+      } else {
+        div.style.right = `${right - ev.clientX}px`;
+      }
+    }
   }, {
     className: 'handle-s',
     style: { bottom: '-4px', left: '25%', width: '50%', height: '8px' },
-    move: () => {}
+    move: (ev) => {
+      const bottom = bb.top + bb.height;
+      if (ev.clientY > bottom) {
+        div.style.bottom = '0px';
+      } else {
+        div.style.bottom = `${bottom - ev.clientY}px`;
+      }
+    }
   }, {
     className: 'handle-w',
     style: { left: '-4px', top: '25%', width: '8px', height: '50%' },
-    move: () => {}
+    move: (ev) => {
+      if (ev.clientX < bb.left) {
+        div.style.left = '0px';
+      } else {
+        div.style.left = `${ev.clientX - bb.left}px`;
+      }
+    }
   }].forEach(({ className, style, move }) => {
     const handle = document.createElement('div');
     Object.assign(handle.style, {
@@ -34,6 +58,31 @@ const cropDiv = () => {
       position: 'absolute',
     }, style);
     handle.className = className;
+
+    const onStart = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+    };
+
+    const onMove = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      move(ev, handle);
+    };
+
+    const onEnd = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onEnd);
+    };
+
+    handle.addEventListener('mousedown', onStart);
 
     div.appendChild(handle);
   });
@@ -63,7 +112,7 @@ export default ({ events }) => {
   };
 
   const onCrop = () => {
-    const div = cropDiv();
+    const div = cropDiv(main.getBoundingClientRect());
     main.appendChild(div);
 
     console.log('CROP ✂');
