@@ -106,6 +106,7 @@ export default () => {
     'navigator.serviceWorker',
     // 'navigator.share',
     'Promise',
+    'Map',
     ['dynamic import', () => {
       try {
         new Function('import("").catch(() => {})')();
