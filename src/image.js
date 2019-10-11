@@ -62,20 +62,17 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
-    let dragging = false;
+    let listening = false;
 
     const onStart = (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
 
-      if (dragging) {
-        return;
+      if (!listening) {
+        listening = true;
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onEnd);
       }
-
-      dragging = true;
-
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onEnd);
     };
 
     const onMove = (ev) => {
@@ -86,9 +83,10 @@ const cropDiv = (bb) => {
     };
 
     const onEnd = (ev) => {
-      dragging = false;
       ev.preventDefault();
       ev.stopPropagation();
+
+      listening = false;
 
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onEnd);
