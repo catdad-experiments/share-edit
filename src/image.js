@@ -122,9 +122,9 @@ const loadImage = (img, url) => {
 };
 
 const readExif = (img) => {
-  return new Promise((resolve, reject) => {
-    EXIF.getData(img, function() {
-      const allMetaData = EXIF.getAllTags(this);
+  return new Promise((resolve) => {
+    EXIF.getData(img, () => {
+      const allMetaData = EXIF.getAllTags(img);
 
       resolve(allMetaData);
     });
