@@ -33,6 +33,10 @@ export default ({ events }) => {
   };
 
   const onOpen = (ev) => {
+    if (!ev.target.files[0]) {
+      return;
+    }
+
     events.emit('display-image', { file: ev.target.files[0] });
   };
 
