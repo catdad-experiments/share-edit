@@ -113,7 +113,9 @@ export default ({ events }) => {
   let height;
 
   const onDraw = () => {
-    hiddenImg.src = canvas.toDataURL('image/png');
+    setTimeout(() => {
+      hiddenImg.src = canvas.toDataURL('image/png');
+    }, 0);
   };
 
   const onImageData = ({ data }) => {
