@@ -19,6 +19,7 @@ export default ({ events }) => {
   const open = find('#open');
   const openInput = find('#open-input');
   const crop = find('#crop');
+  const share = find('#share');
   const doneButtons = findAll('.controls .done');
 
   const help = find('#help');
@@ -44,11 +45,15 @@ export default ({ events }) => {
     void showPalette('crop');
     events.emit('controls-crop');
   };
+  const onShare = () => {
+    events.emit('info', 'right-click or long-press to share');
+  };
 
   help.addEventListener('click', onHelp);
   open.addEventListener('click', onClick);
   openInput.addEventListener('change', onOpen);
   crop.addEventListener('click', onCrop);
+  share.addEventListener('click', onShare);
   doneButtons.forEach(done => done.addEventListener('click', onDone));
 
   return () => {
@@ -56,6 +61,7 @@ export default ({ events }) => {
     open.removeEventListener('click', onClick);
     openInput.removeEventListener('change', onOpen);
     crop.removeEventListener('click', onCrop);
+    share.removeEventListener('click', onShare);
 
     doneButtons.forEach(done => done.removeEventListener('click', onDone));
   };
