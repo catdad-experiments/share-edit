@@ -122,22 +122,10 @@ const loadImage = (img, url) => {
 };
 
 const readExif = (img) => {
-  return new Promise((resolve, reject) => {
-    try {
-      EXIF.getData(img, () => {
-        let data;
-
-        try {
-          data = EXIF.getAllTags(img);
-        } catch (e) {
-          return reject(e);
-        }
-
-        resolve(data);
-      });
-    } catch (e) {
-      reject(e);
-    }
+  return Promise.resolve().then(() => {
+    return new Promise(r => EXIF.getData(img, () => r()));
+  }).then(() => {
+    return EXIF.getAllTags(img);
   });
 };
 
