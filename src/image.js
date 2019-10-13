@@ -1,3 +1,13 @@
+/* globals EXIF */
+
+// https://magnushoff.com/articles/jpeg-orientation/
+const orientations = {
+  '1': 0,
+  '3': 180,
+  '6': 90,
+  '8': 270
+};
+
 const cropDiv = (bb) => {
   const color = '#039be5';
   const div = document.createElement('div');
@@ -103,6 +113,22 @@ const cropDiv = (bb) => {
   return div;
 };
 
+const loadImage = (img, url) => {
+  return new Promise((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = e => reject(e);
+    img.src = url;
+  });
+};
+
+const readExif = (img) => {
+  return Promise.resolve().then(() => {
+    return new Promise(r => EXIF.getData(img, () => r()));
+  }).then(() => {
+    return EXIF.getAllTags(img);
+  });
+};
+
 export default ({ events }) => {
   const main = document.querySelector('.renderer');
   const hiddenImg = document.querySelector('.hidden-image');
@@ -126,7 +152,7 @@ export default ({ events }) => {
     onDraw();
   };
 
-  const onFile = ({ file }) => {
+  const onFile = async ({ file }) => {
     if (cropTool) {
       cropTool.remove();
       cropTool = null;
@@ -134,18 +160,43 @@ export default ({ events }) => {
 
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
+
+    try {
+      await loadImage(img, url);
+      const { Orientation: orientation } = await readExif(img);
 
       const { naturalWidth: w, naturalHeight: h } = img;
 
       canvas.width = width = w;
       canvas.height = height = h;
 
-      ctx.drawImage(img, 0, 0);
+      if (orientation !== 0 && orientations[orientation]) {
+        const degrees = orientations[orientation];
+
+        if (degrees !== 270) {
+          canvas.width = width = h;
+          canvas.height = height = w;
+
+          ctx.translate(width/2,height/2);
+        } else {
+          ctx.translate(height/2,width/2);
+        }
+
+        ctx.rotate(degrees*Math.PI/180);
+        ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
+      } else {
+        ctx.drawImage(img, 0, 0);
+      }
+
+      // reset the canvas context
+      ctx.setTransform(1,0,0,1,0,0);
+
       onDraw();
-    };
-    img.src = url;
+    } catch (e) {
+      events.emit('error', e);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   };
 
   const onCrop = () => {
