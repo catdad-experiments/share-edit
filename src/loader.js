@@ -171,6 +171,14 @@ export default () => {
       }, 8 * 1000);
     });
 
+    context.events.on('info', (msg) => {
+      showPrompt([msg], 'info');
+
+      setTimeout(function () {
+        clearPrompt();
+      }, 4 * 1000);
+    });
+
     events.flush(context.events);
     events = context.events;
   }).catch(function catchErr(err) {
