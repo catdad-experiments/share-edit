@@ -105,17 +105,23 @@ const cropDiv = (bb) => {
 
 export default ({ events }) => {
   const main = document.querySelector('.renderer');
+  const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
   const ctx = canvas.getContext('2d');
   let cropTool;
   let width;
   let height;
 
+  const onDraw = () => {
+    hiddenImg.src = canvas.toDataURL('image/png');
+  };
+
   const onImageData = ({ data }) => {
     canvas.width = width = data.width;
     canvas.height = height = data.height;
 
     ctx.putImageData(data, 0, 0);
+    onDraw();
   };
 
   const onFile = ({ file }) => {
@@ -135,6 +141,7 @@ export default ({ events }) => {
       canvas.height = height = h;
 
       ctx.drawImage(img, 0, 0);
+      onDraw();
     };
     img.src = url;
   };
