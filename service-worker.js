@@ -39,7 +39,7 @@ const nextMessage = str => new Promise(resolve => {
 
 const serveShareTarget = event => {
   // Redirect so the user can refresh the page without resending data.
-  event.respondWith(Response.redirect('/?share-target'));
+  event.respondWith(Response.redirect(event.request.url));
 
   event.waitUntil(async function () {
     // nextMessage('share-ready');
@@ -77,9 +77,7 @@ self.addEventListener('fetch', (event) => {
 
   const isSameOrigin = url.origin === location.origin;
 
-  const isShareTarget = url.pathname === '/' &&
-    url.searchParams.has('share-target') &&
-    event.request.method === 'POST';
+  const isShareTarget = event.request.method === 'POST' && url.searchParams.has('share-target');
 
   if (isSameOrigin && isShareTarget) {
     console.log(WORKER, 'handling share target request');
