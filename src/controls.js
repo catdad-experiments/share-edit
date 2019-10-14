@@ -2,6 +2,8 @@ const find = selector => document.querySelector(selector);
 const findAll = selector => [...document.querySelectorAll(selector)];
 
 export default ({ events }) => {
+  let deferredPrompt;
+
   const palettes = new Map([
     ['general', find('.general-tools')],
     ['crop', find('.crop-tools')]
@@ -16,6 +18,7 @@ export default ({ events }) => {
   });
 
   const controls = find('.controls');
+  const install = find('#install');
   const open = find('#open');
   const openInput = find('#open-input');
   const crop = find('#crop');
@@ -52,21 +55,49 @@ export default ({ events }) => {
   const onShare = () => {
     events.emit('info', 'right-click or long-press to share');
   };
+  const onCanInstall = ({ prompt }) => {
+    if (deferredPrompt === 0) {
+      return;
+    }
+
+    deferredPrompt = prompt;
+    install.classList.remove('hide');
+  };
+  const onInstall = () => {
+    if (!deferredPrompt) {
+      return;
+    }
+
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(result => {
+      deferredPrompt = 0;
+      install.classList.add('hide');
+      // eslint-disable-next-line no-console
+      console.log('install prompt result', result, install.className, install);
+    }).catch(e => {
+      events.emit('warn', e);
+    });
+  };
 
   help.addEventListener('click', onHelp);
+  install.addEventListener('click', onInstall);
   open.addEventListener('click', onClick);
   openInput.addEventListener('change', onOpen);
   crop.addEventListener('click', onCrop);
   share.addEventListener('click', onShare);
   doneButtons.forEach(done => done.addEventListener('click', onDone));
 
+  events.on('can-install', onCanInstall);
+
   return () => {
     help.removeEventListener('click', onHelp);
+    install.removeEventListener('click', onInstall);
     open.removeEventListener('click', onClick);
     openInput.removeEventListener('change', onOpen);
     crop.removeEventListener('click', onCrop);
     share.removeEventListener('click', onShare);
-
     doneButtons.forEach(done => done.removeEventListener('click', onDone));
+
+    events.off('can-install', onCanInstall);
   };
 };

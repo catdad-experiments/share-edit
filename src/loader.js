@@ -16,14 +16,12 @@ let events = (function () {
 }());
 
 window.addEventListener('beforeinstallprompt', (ev) => {
-  // Stash the event so it can be triggered later.
-  window.deferredPrompt = ev;
-  // Remove the 'hidden' class from the install button container
-  console.log('👀', 'ALLOW INSTALL BUTTON TO BE CLICKED');
+  console.log('👀 we can install the app now');
+  events.emit('can-install', { prompt: ev });
 });
 
 window.addEventListener('appinstalled', () => {
-  console.log('👍', 'app installed');
+  events.emit('info', '🎊 installed 🎊');
 });
 
 if ('serviceWorker' in navigator) {
@@ -145,7 +143,6 @@ export default () => {
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
-    load('./setup.js'),
     load('./image.js'),
     load('./controls.js'),
     load('./window-size.js'),
