@@ -143,7 +143,6 @@ export default () => {
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
-    load('./setup.js'),
     load('./image.js'),
     load('./controls.js'),
     load('./window-size.js'),
