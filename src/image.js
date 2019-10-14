@@ -173,14 +173,12 @@ export default ({ events }) => {
       if (orientation !== 0 && orientations[orientation]) {
         const degrees = orientations[orientation];
 
-        if (degrees !== 270) {
+        if (degrees !== 180) {
           canvas.width = width = h;
           canvas.height = height = w;
-
-          ctx.translate(width/2,height/2);
-        } else {
-          ctx.translate(height/2,width/2);
         }
+
+        ctx.translate(width/2,height/2);
 
         ctx.rotate(degrees*Math.PI/180);
         ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
