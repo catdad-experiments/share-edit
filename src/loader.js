@@ -70,9 +70,8 @@ export default () => {
   }
 
   // detect missing features in the browser
-  var missingFeatures = [
-    // 'navigator.serviceWorker',
-    // 'navigator.share',
+  const missingFeatures = [
+    'navigator.serviceWorker',
     'Promise',
     'Map',
     ['dynamic import', () => {
