@@ -8,14 +8,14 @@ const colors = {
 };
 
 const toast = (color) => {
-  return (...args) => {
-    Toastify({
-      text: args.join(' '),
+  return (text, opts = {}) => {
+    Toastify(Object.assign({
+      text: text,
       gravity: 'top',
       position: 'center',
       backgroundColor: color,
-      duration: -1
-    }).showToast();
+      duration: 4000
+    }, opts)).showToast();
   };
 };
 
