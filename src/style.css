@@ -162,3 +162,9 @@ html, body {
   width: var(--size);
 }
 
+/* TOAST STYLE */
+
+.toastify.toastify.toastify {
+  max-width: calc(100% - 20px);
+  text-align: center;
+}

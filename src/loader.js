@@ -143,11 +143,13 @@ export default () => {
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
+    load('./toast.js'),
     load('./image.js'),
     load('./controls.js'),
     load('./window-size.js'),
   ]).then(([
     eventEmitter,
+    toast,
     ...modules
   ]) => {
     // set up a global event emitter
