@@ -69,6 +69,8 @@ html, body {
   flex-direction: column;
   height: calc(100vh - var(--controls-height));
   overflow: hidden;
+  align-items: center;
+  justify-content: center;
 }
 
 .controls {
@@ -120,7 +122,6 @@ html, body {
 .renderer {
   display: block;
   position: relative;
-  margin: auto;
   max-width: 96%;
   max-height: 96%;
 }
@@ -137,6 +138,7 @@ html, body {
 }
 
 .renderer canvas {
+  display: block;
   max-width: 100%;
   max-height: 100%;
 }
