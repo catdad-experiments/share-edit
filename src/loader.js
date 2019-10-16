@@ -61,11 +61,11 @@ export default () => {
     });
   }
 
-  function onError(err) {
+  function onError(err, duration = 8 * 1000) {
     // eslint-disable-next-line no-console
     console.error(err);
     toast.error(`<p>An error occured:</p><p>${err.toString().split('\n').join('<br/>')}</p>`, {
-      duration: 8 * 1000
+      duration
     });
   }
 
@@ -125,8 +125,7 @@ export default () => {
     const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {
-      onError(err);
-
+      onError(err, -1);
       destroys.forEach(d => d());
     });
 
