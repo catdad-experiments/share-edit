@@ -170,7 +170,7 @@ export default ({ events }) => {
       canvas.width = width = w;
       canvas.height = height = h;
 
-      if (orientations[orientation] !== 0) {
+      if (orientations[orientation]) {
         const degrees = orientations[orientation];
 
         if (degrees !== 180) {
