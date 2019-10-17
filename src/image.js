@@ -8,6 +8,53 @@ const orientations = {
   '8': 270
 };
 
+const listen = (() => {
+  let listening = false;
+
+  return (elem, { start, move, end } = {}) => {
+    const onStart = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      if (!listening) {
+        listening = true;
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onEnd);
+      }
+
+      if (start) {
+        start(ev);
+      }
+    };
+
+    const onMove = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      if (move) {
+        move(ev);
+      }
+    };
+
+    const onEnd = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      listening = false;
+
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onEnd);
+
+      if (end) {
+        end(ev);
+      }
+    };
+
+    elem.addEventListener('touchstart', onStart);
+    elem.addEventListener('pointerdown', onStart);
+  };
+})();
+
 const cropTool = ({ canvas, ctx, renderer, update }) => {
   const { width, height } = canvas;
   const bb = renderer.getBoundingClientRect();
@@ -24,53 +71,6 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
 
   const size = '9px';
   const offset = '-4px';
-
-  const listen = (() => {
-    let listening = false;
-
-    return (elem, { start, move, end } = {}) => {
-      const onStart = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        if (!listening) {
-          listening = true;
-          window.addEventListener('pointermove', onMove);
-          window.addEventListener('pointerup', onEnd);
-        }
-
-        if (start) {
-          start(ev);
-        }
-      };
-
-      const onMove = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        if (move) {
-          move(ev);
-        }
-      };
-
-      const onEnd = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        listening = false;
-
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onEnd);
-
-        if (end) {
-          end(ev);
-        }
-      };
-
-      elem.addEventListener('touchstart', onStart);
-      elem.addEventListener('pointerdown', onStart);
-    };
-  })();
 
   [{
     className: 'handle-h handle-n',
@@ -204,6 +204,40 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   return { done, cancel };
 };
 
+const drawTool = ({ canvas, ctx, renderer, update }) => {
+  const drawCanvas = document.createElement('canvas');
+  Object.assign(drawCanvas.style, {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  });
+  drawCanvas.width = canvas.width;
+  drawCanvas.height = canvas.height;
+
+  listen(canvas, {
+    start(ev) {
+      console.log(ev);
+    },
+    move(ev) {
+      console.log(ev);
+    },
+    end(ev) {
+      console.log(ev);
+    }
+  });
+
+  const done = () => {};
+  const cancel = () => {
+    drawCanvas.remove();
+  };
+
+  renderer.appendChild(drawCanvas);
+
+  return { done, cancel };
+};
+
 const loadImage = (img, url) => {
   return new Promise((resolve, reject) => {
     img.onload = () => resolve();
@@ -229,7 +263,7 @@ export default ({ events }) => {
   let width;
   let height;
 
-  const onDraw = () => {
+  const onUpdate = () => {
     setTimeout(() => {
       hiddenImg.src = canvas.toDataURL('image/png');
     }, 0);
@@ -240,7 +274,7 @@ export default ({ events }) => {
     canvas.height = height = data.height;
 
     ctx.putImageData(data, 0, 0);
-    onDraw();
+    onUpdate();
   };
 
   const onFile = async ({ file }) => {
@@ -277,7 +311,7 @@ export default ({ events }) => {
       // reset the canvas context
       ctx.setTransform(1,0,0,1,0,0);
 
-      onDraw();
+      onUpdate();
     } catch (e) {
       events.emit('error', e);
     } finally {
@@ -286,7 +320,20 @@ export default ({ events }) => {
   };
 
   const onCrop = () => {
+    onCancel();
+
     activeTool = cropTool({
+      canvas,
+      ctx,
+      renderer,
+      update: ({ data }) => onImageData({ data })
+    });
+  };
+
+  const onDraw = () => {
+    onCancel();
+
+    activeTool = drawTool({
       canvas,
       ctx,
       renderer,
@@ -310,12 +357,14 @@ export default ({ events }) => {
 
   events.on('display-image', onFile);
   events.on('controls-crop', onCrop);
+  events.on('controls-draw', onDraw);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
 
   return function destroy() {
     events.off('display-image', onFile);
     events.off('controls-crop', onCrop);
+    events.off('controls-draw', onDraw);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
   };
