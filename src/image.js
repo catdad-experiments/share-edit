@@ -149,7 +149,7 @@ const cropDiv = (bb) => {
         const diffX = newX - init.x;
         const diffY = newY - init.y;
 
-        if (diffY > 0 && rect.bottom < bb.bottom) {
+        if (diffY > 0 && rect.bottom > 0) {
           div.style.top = `${rect.top + diffY}px`;
           div.style.bottom = `${rect.bottom - diffY}px`;
         } else if (diffY < 0 && rect.top > 0) {
@@ -157,7 +157,7 @@ const cropDiv = (bb) => {
           div.style.bottom = `${rect.bottom - diffY}px`;
         }
 
-        if (diffX > 0 && rect.right < bb.right) {
+        if (diffX > 0 && rect.right > 0) {
           div.style.left = `${rect.left + diffX}px`;
           div.style.right = `${rect.right - diffX}px`;
         } else if (diffX < 0 && rect.left > 0) {
