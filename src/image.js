@@ -23,6 +23,43 @@ const cropDiv = (bb) => {
   const size = '9px';
   const offset = '-4px';
 
+  const listen = (() => {
+    let listening = false;
+
+    return (elem, move) => {
+      const onStart = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        if (!listening) {
+          listening = true;
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', onEnd);
+        }
+      };
+
+      const onMove = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        move(ev, elem);
+      };
+
+      const onEnd = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        listening = false;
+
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onEnd);
+      };
+
+      elem.addEventListener('touchstart', onStart);
+      elem.addEventListener('pointerdown', onStart);
+    };
+  })();
+
   [{
     className: 'handle-h handle-n',
     style: { top: offset, left: '25%', width: '50%', height: size },
@@ -74,38 +111,7 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
-    let listening = false;
-
-    const onStart = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (!listening) {
-        listening = true;
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onEnd);
-      }
-    };
-
-    const onMove = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      move(ev, handle);
-    };
-
-    const onEnd = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      listening = false;
-
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onEnd);
-    };
-
-    handle.addEventListener('touchstart', onStart);
-    handle.addEventListener('pointerdown', onStart);
+    listen(handle, move);
 
     div.appendChild(handle);
   });
