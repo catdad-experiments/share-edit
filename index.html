@@ -14,18 +14,16 @@
   <link rel="stylesheet" type="text/css" href="src/style.css">
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.css" rel="stylesheet">
 </head>
 
 <body>
-  <div class="header-container error">
-    <div class="limit">
-      <div id="prompt" class="prompt">
-        <p>This browser is not supported.</p>
-      </div>
-    </div>
+  <div class="unsupported limit">
+    <p>This browser is not supported.</p>
+    <p>See the <a href="https://github.com/catdad-experiments/share-edit">GitHub page</a> for more info.</p>
   </div>
 
-  <div class="container">
+  <div class="container hide">
     <div class="main">
       <div class="renderer">
         <canvas id="canvas" class=""></canvas>
@@ -48,13 +46,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.js"></script>
   <script type="module">
     import loader from './src/loader.js';
 
-    const headerContainer = document.querySelector('.header-container');
-    const prompt = document.querySelector('#prompt');
-    headerContainer.classList.remove('error');
-    prompt.classList.add('hide');
+    document.querySelector('.unsupported').remove();
+    document.querySelector('.container').classList.remove('hide');
 
     window.addEventListener('load', function () {
       loader();
