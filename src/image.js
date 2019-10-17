@@ -205,35 +205,52 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
 };
 
 const drawTool = ({ canvas, ctx, renderer, update }) => {
-  const drawCanvas = document.createElement('canvas');
-  Object.assign(drawCanvas.style, {
+  const bb = renderer.getBoundingClientRect();
+  const ratio = canvas.width / bb.width;
+
+  const stack = [
+    ctx.getImageData(0, 0, canvas.width, canvas.height)
+  ];
+
+  const div = document.createElement('div');
+  Object.assign(div.style, {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   });
-  drawCanvas.width = canvas.width;
-  drawCanvas.height = canvas.height;
 
-  listen(canvas, {
+  listen(div, {
     start(ev) {
-      console.log(ev);
+      ctx.lineWidth = 26;
+      ctx.strokeStyle = 'pink';
+      ctx.moveTo(
+        (ev.clientX - bb.left) * ratio,
+        (ev.clientY - bb.top) * ratio
+      );
     },
     move(ev) {
-      console.log(ev);
+      ctx.lineTo(
+        (ev.clientX - bb.left) * ratio,
+        (ev.clientY - bb.top) * ratio
+      );
+      ctx.stroke();
     },
-    end(ev) {
-      console.log(ev);
+    end() {
+      stack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
   });
 
-  const done = () => {};
-  const cancel = () => {
-    drawCanvas.remove();
-  };
+  renderer.appendChild(div);
 
-  renderer.appendChild(drawCanvas);
+  const done = () => {
+    div.remove();
+  };
+  const cancel = () => {
+    done();
+    update({ data: stack[0] });
+  };
 
   return { done, cancel };
 };
