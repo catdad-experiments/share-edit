@@ -150,19 +150,23 @@ const cropDiv = (bb) => {
         const diffY = newY - init.y;
 
         if (diffY > 0 && rect.bottom > 0) {
-          div.style.top = `${rect.top + diffY}px`;
-          div.style.bottom = `${rect.bottom - diffY}px`;
+          const diff = rect.bottom - diffY > 0 ? diffY : 1;
+          div.style.top = `${rect.top + diff}px`;
+          div.style.bottom = `${rect.bottom - diff}px`;
         } else if (diffY < 0 && rect.top > 0) {
-          div.style.top = `${rect.top + diffY}px`;
-          div.style.bottom = `${rect.bottom - diffY}px`;
+          const diff = rect.top + diffY > 0 ? diffY : -1;
+          div.style.top = `${rect.top + diff}px`;
+          div.style.bottom = `${rect.bottom - diff}px`;
         }
 
         if (diffX > 0 && rect.right > 0) {
-          div.style.left = `${rect.left + diffX}px`;
-          div.style.right = `${rect.right - diffX}px`;
+          const diff = rect.right - diffX > 0 ? diffX : 1;
+          div.style.left = `${rect.left + diff}px`;
+          div.style.right = `${rect.right - diff}px`;
         } else if (diffX < 0 && rect.left > 0) {
-          div.style.left = `${rect.left + diffX}px`;
-          div.style.right = `${rect.right - diffX}px`;
+          const diff = rect.left + diffX > 0 ? diffX : -1;
+          div.style.left = `${rect.left + diff}px`;
+          div.style.right = `${rect.right - diff}px`;
         }
 
         init = { x: newX, y: newY };
