@@ -269,6 +269,13 @@ export default ({ events }) => {
     main.appendChild(cropTool);
   };
 
+  const onCancel = () => {
+    if (cropTool) {
+      cropTool.remove();
+      cropTool = null;
+    }
+  };
+
   const onDone = () => {
     if (cropTool) {
       const cropBox = cropTool.getBoundingClientRect();
@@ -281,8 +288,7 @@ export default ({ events }) => {
         cropBox.height / imgBox.height * height
       );
 
-      cropTool.remove();
-      cropTool = null;
+      onCancel();
 
       onImageData({ data });
     }
@@ -291,10 +297,12 @@ export default ({ events }) => {
   events.on('display-image', onFile);
   events.on('controls-crop', onCrop);
   events.on('controls-done', onDone);
+  events.on('controls-cancel', onCancel);
 
   return function destroy() {
     events.off('display-image', onFile);
     events.off('controls-crop', onCrop);
     events.off('controls-done', onDone);
+    events.off('controls-cancel', onCancel);
   };
 };
