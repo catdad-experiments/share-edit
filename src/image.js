@@ -26,7 +26,7 @@ const cropDiv = (bb) => {
   const listen = (() => {
     let listening = false;
 
-    return (elem, move) => {
+    return (elem, { start, move, end } = {}) => {
       const onStart = (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -36,13 +36,19 @@ const cropDiv = (bb) => {
           window.addEventListener('pointermove', onMove);
           window.addEventListener('pointerup', onEnd);
         }
+
+        if (start) {
+          start(ev);
+        }
       };
 
       const onMove = (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
 
-        move(ev, elem);
+        if (move) {
+          move(ev);
+        }
       };
 
       const onEnd = (ev) => {
@@ -53,6 +59,10 @@ const cropDiv = (bb) => {
 
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onEnd);
+
+        if (end) {
+          end(ev);
+        }
       };
 
       elem.addEventListener('touchstart', onStart);
@@ -111,7 +121,7 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
-    listen(handle, move);
+    listen(handle, { move });
 
     div.appendChild(handle);
   });
