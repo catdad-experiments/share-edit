@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import toast from './toast.js';
+import toast, { menu } from './toast.js';
 
 let events = (function () {
   let collection = [];

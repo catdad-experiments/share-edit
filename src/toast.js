@@ -9,7 +9,7 @@ const colors = {
 
 const toast = (color) => {
   return (text, opts = {}) => {
-    Toastify(Object.assign({
+    return Toastify(Object.assign({
       text: text,
       gravity: 'top',
       position: 'center',
@@ -26,4 +26,23 @@ const api = {
   info: toast(colors.blue)
 };
 
+const menu = (...items) => {
+  return new Promise(resolve => {
+    const onSelect = (item) => {
+      resolve(item);
+
+      toasts.forEach(t => t.hideToast());
+    };
+
+    const toasts = items.map(item => {
+      return toast('black')(item.content, {
+        onClick: () => onSelect(item),
+        className: 'toast-menu-item',
+        gravity: 'bottom'
+      });
+    });
+  });
+};
+
 export default api;
+export { menu };
