@@ -126,6 +126,53 @@ const cropDiv = (bb) => {
     div.appendChild(handle);
   });
 
+  (() => {
+    let init;
+
+    listen(div, {
+      start: ev => {
+        if (init || !ev.clientX || !ev.clientY) {
+          return;
+        }
+
+        init = { x: ev.clientX, y: ev.clientY };
+      },
+      move: ev => {
+        const { clientX: newX, clientY: newY } = ev;
+        const rect = {
+          top: div.style.top.replace('px', '') - 0,
+          left: div.style.left.replace('px', '') - 0,
+          bottom: div.style.bottom.replace('px', '') - 0,
+          right: div.style.right.replace('px', '') - 0,
+        };
+
+        const diffX = newX - init.x;
+        const diffY = newY - init.y;
+
+        if (diffY > 0 && rect.bottom < bb.bottom) {
+          div.style.top = `${rect.top + diffY}px`;
+          div.style.bottom = `${rect.bottom - diffY}px`;
+        } else if (diffY < 0 && rect.top > 0) {
+          div.style.top = `${rect.top + diffY}px`;
+          div.style.bottom = `${rect.bottom - diffY}px`;
+        }
+
+        if (diffX > 0 && rect.right < bb.right) {
+          div.style.left = `${rect.left + diffX}px`;
+          div.style.right = `${rect.right - diffX}px`;
+        } else if (diffX < 0 && rect.left > 0) {
+          div.style.left = `${rect.left + diffX}px`;
+          div.style.right = `${rect.right - diffX}px`;
+        }
+
+        init = { x: newX, y: newY };
+      },
+      end: () => {
+        init = null;
+      }
+    });
+  })();
+
   return div;
 };
 
