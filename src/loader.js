@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import toast from './toast.js';
+
 let events = (function () {
   let collection = [];
 
@@ -50,59 +52,26 @@ if ('serviceWorker' in navigator) {
 }
 
 export default () => {
-  const headerContainer = document.querySelector('.header-container');
-  const prompt = document.querySelector('#prompt');
-
-  function clearPrompt() {
-    prompt.classList.add('hide');
-    headerContainer.classList.remove('error');
-  }
-
-  function showPrompt(message, type) {
-    if (typeof message === 'string') {
-      message = [message];
-    }
-
-    // clean the prompt
-    prompt.innerHTML = '';
-
-    message.forEach((text) => {
-      const paragraph = document.createElement('p');
-      paragraph.appendChild(document.createTextNode(text.toString()));
-
-      prompt.appendChild(paragraph);
-    });
-
-    prompt.classList.remove('hide');
-
-    if (type === 'error') {
-      headerContainer.classList.add('error');
-    } else {
-      headerContainer.classList.remove('error');
-    }
-  }
-
   function onMissingFeatures(missing) {
-    showPrompt([
-      'It seems your browser is not supported. The following features are missing:',
-      missing
-    ], 'error');
+    const text = `<p>It seems your browser is not supported. The following features are missing:</p>
+                  <p>${missing.join(', ')}</p>`;
+
+    toast.error(text, {
+      duration: -1 // forever
+    });
   }
 
-  function onError(err) {
+  function onError(err, duration = 8 * 1000) {
     // eslint-disable-next-line no-console
     console.error(err);
-
-    showPrompt([
-      'An error occured:',
-      err.message || err
-    ], 'error');
+    toast.error(`<p>An error occured:</p><p>${err.toString().split('\n').join('<br/>')}</p>`, {
+      duration
+    });
   }
 
   // detect missing features in the browser
-  var missingFeatures = [
+  const missingFeatures = [
     'navigator.serviceWorker',
-    // 'navigator.share',
     'Promise',
     'Map',
     ['dynamic import', () => {
@@ -126,7 +95,7 @@ export default () => {
   }).map(v => Array.isArray(v) ? v[0] : v);
 
   if (missingFeatures.length) {
-    return onMissingFeatures(missingFeatures.join(', '));
+    return onMissingFeatures(missingFeatures);
   }
 
   // ------------------------------------------------
@@ -155,25 +124,16 @@ export default () => {
     const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {
-      onError(err);
-
+      onError(err, -1);
       destroys.forEach(d => d());
     });
 
     context.events.on('warn', function (err) {
       onError(err);
-
-      setTimeout(function () {
-        clearPrompt();
-      }, 8 * 1000);
     });
 
     context.events.on('info', (msg) => {
-      showPrompt([msg], 'info');
-
-      setTimeout(function () {
-        clearPrompt();
-      }, 4 * 1000);
+      toast.info(msg.toString());
     });
 
     events.flush(context.events);

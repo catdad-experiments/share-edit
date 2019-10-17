@@ -23,6 +23,53 @@ const cropDiv = (bb) => {
   const size = '9px';
   const offset = '-4px';
 
+  const listen = (() => {
+    let listening = false;
+
+    return (elem, { start, move, end } = {}) => {
+      const onStart = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        if (!listening) {
+          listening = true;
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', onEnd);
+        }
+
+        if (start) {
+          start(ev);
+        }
+      };
+
+      const onMove = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        if (move) {
+          move(ev);
+        }
+      };
+
+      const onEnd = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        listening = false;
+
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onEnd);
+
+        if (end) {
+          end(ev);
+        }
+      };
+
+      elem.addEventListener('touchstart', onStart);
+      elem.addEventListener('pointerdown', onStart);
+    };
+  })();
+
   [{
     className: 'handle-h handle-n',
     style: { top: offset, left: '25%', width: '50%', height: size },
@@ -74,41 +121,61 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
-    let listening = false;
-
-    const onStart = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (!listening) {
-        listening = true;
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onEnd);
-      }
-    };
-
-    const onMove = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      move(ev, handle);
-    };
-
-    const onEnd = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      listening = false;
-
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onEnd);
-    };
-
-    handle.addEventListener('touchstart', onStart);
-    handle.addEventListener('pointerdown', onStart);
+    listen(handle, { move });
 
     div.appendChild(handle);
   });
+
+  (() => {
+    let init;
+
+    listen(div, {
+      start: ev => {
+        if (init || !ev.clientX || !ev.clientY) {
+          return;
+        }
+
+        init = { x: ev.clientX, y: ev.clientY };
+      },
+      move: ev => {
+        const { clientX: newX, clientY: newY } = ev;
+        const rect = {
+          top: Number(div.style.top.slice(0, -2)),
+          left: Number(div.style.left.slice(0, -2)),
+          bottom: Number(div.style.bottom.slice(0, -2)),
+          right: Number(div.style.right.slice(0, -2)),
+        };
+
+        const diffX = newX - init.x;
+        const diffY = newY - init.y;
+
+        if (diffY > 0 && rect.bottom > 0) {
+          const diff = rect.bottom - diffY > 0 ? diffY : 1;
+          div.style.top = `${rect.top + diff}px`;
+          div.style.bottom = `${rect.bottom - diff}px`;
+        } else if (diffY < 0 && rect.top > 0) {
+          const diff = rect.top + diffY > 0 ? diffY : -1;
+          div.style.top = `${rect.top + diff}px`;
+          div.style.bottom = `${rect.bottom - diff}px`;
+        }
+
+        if (diffX > 0 && rect.right > 0) {
+          const diff = rect.right - diffX > 0 ? diffX : 1;
+          div.style.left = `${rect.left + diff}px`;
+          div.style.right = `${rect.right - diff}px`;
+        } else if (diffX < 0 && rect.left > 0) {
+          const diff = rect.left + diffX > 0 ? diffX : -1;
+          div.style.left = `${rect.left + diff}px`;
+          div.style.right = `${rect.right - diff}px`;
+        }
+
+        init = { x: newX, y: newY };
+      },
+      end: () => {
+        init = null;
+      }
+    });
+  })();
 
   return div;
 };
@@ -202,6 +269,13 @@ export default ({ events }) => {
     main.appendChild(cropTool);
   };
 
+  const onCancel = () => {
+    if (cropTool) {
+      cropTool.remove();
+      cropTool = null;
+    }
+  };
+
   const onDone = () => {
     if (cropTool) {
       const cropBox = cropTool.getBoundingClientRect();
@@ -214,8 +288,7 @@ export default ({ events }) => {
         cropBox.height / imgBox.height * height
       );
 
-      cropTool.remove();
-      cropTool = null;
+      onCancel();
 
       onImageData({ data });
     }
@@ -224,10 +297,12 @@ export default ({ events }) => {
   events.on('display-image', onFile);
   events.on('controls-crop', onCrop);
   events.on('controls-done', onDone);
+  events.on('controls-cancel', onCancel);
 
   return function destroy() {
     events.off('display-image', onFile);
     events.off('controls-crop', onCrop);
     events.off('controls-done', onDone);
+    events.off('controls-cancel', onCancel);
   };
 };
