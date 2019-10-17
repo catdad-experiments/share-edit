@@ -223,6 +223,8 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
 
   listen(div, {
     start(ev) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       ctx.lineWidth = 26;
       ctx.strokeStyle = 'pink';
       ctx.moveTo(
