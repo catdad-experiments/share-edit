@@ -6,7 +6,8 @@ export default ({ events }) => {
 
   const palettes = new Map([
     ['general', find('.general-tools')],
-    ['crop', find('.crop-tools')]
+    ['crop', find('.crop-tools')],
+    ['draw', find('.draw-tools')]
   ]);
 
   const showPalette = name => void palettes.forEach((value, key) => {
@@ -22,6 +23,7 @@ export default ({ events }) => {
   const open = find('#open');
   const openInput = find('#open-input');
   const crop = find('#crop');
+  const draw = find('#draw');
   const share = find('#share');
   const doneButtons = findAll('.controls [data-cmd=done]');
   const cancelButtons = findAll('.controls [data-cmd=cancel]');
@@ -46,7 +48,7 @@ export default ({ events }) => {
 
   const onClick = () => void openInput.click();
   const onDone = () => {
-    void showPalette('general');
+    showPalette('general');
     events.emit('controls-done');
   };
   const onCancel = () => {
@@ -54,8 +56,12 @@ export default ({ events }) => {
     events.emit('controls-cancel');
   };
   const onCrop = () => {
-    void showPalette('crop');
+    showPalette('crop');
     events.emit('controls-crop');
+  };
+  const onDraw = () => {
+    showPalette('draw');
+    events.emit('controls-draw');
   };
   const onShare = () => {
     events.emit('info', 'right-click or long-press to share');
@@ -89,6 +95,7 @@ export default ({ events }) => {
   open.addEventListener('click', onClick);
   openInput.addEventListener('change', onOpen);
   crop.addEventListener('click', onCrop);
+  draw.addEventListener('click', onDraw);
   share.addEventListener('click', onShare);
   doneButtons.forEach(done => done.addEventListener('click', onDone));
   cancelButtons.forEach(done => done.addEventListener('click', onCancel));
@@ -101,6 +108,7 @@ export default ({ events }) => {
     open.removeEventListener('click', onClick);
     openInput.removeEventListener('change', onOpen);
     crop.removeEventListener('click', onCrop);
+    draw.removeEventListener('click', onDraw);
     share.removeEventListener('click', onShare);
     doneButtons.forEach(done => done.removeEventListener('click', onDone));
     cancelButtons.forEach(done => done.removeEventListener('click', onCancel));
