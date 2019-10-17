@@ -246,9 +246,10 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
 
   const done = () => {
     div.remove();
+    update({ data: stack.pop() })
   };
   const cancel = () => {
-    done();
+    div.remove();
     update({ data: stack[0] });
   };
 
