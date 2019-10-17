@@ -140,10 +140,10 @@ const cropDiv = (bb) => {
       move: ev => {
         const { clientX: newX, clientY: newY } = ev;
         const rect = {
-          top: div.style.top.replace('px', '') - 0,
-          left: div.style.left.replace('px', '') - 0,
-          bottom: div.style.bottom.replace('px', '') - 0,
-          right: div.style.right.replace('px', '') - 0,
+          top: Number(div.style.top.slice(0, -2)),
+          left: Number(div.style.left.slice(0, -2)),
+          bottom: Number(div.style.bottom.slice(0, -2)),
+          right: Number(div.style.right.slice(0, -2)),
         };
 
         const diffX = newX - init.x;
