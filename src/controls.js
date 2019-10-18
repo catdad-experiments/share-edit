@@ -6,8 +6,8 @@ const between = (min, max, value) => Math.max(Math.min(value, max), min);
 const brushSize = (elem, mover) => {
   const renderer = find('.renderer');
   const renderBB = renderer.getBoundingClientRect();
-  const minSize = Math.floor(renderBB.width * 0.05);
-  const maxSize = Math.floor(renderBB.width * 0.3);
+  const minSize = 2;
+  const maxSize = 20;
   const hint = document.createElement('div');
   hint.classList.add('brush-hint');
 
@@ -17,10 +17,10 @@ const brushSize = (elem, mover) => {
 
   const setElements = () => {
     const ratio = offset / 100;
-    size = Math.floor((minSize * (1-ratio)) + (maxSize * ratio));
+    size = Math.floor((minSize * (1-ratio)) + (maxSize * ratio)) / 100;
 
     elem.style.setProperty('--offset', `${Math.floor(offset)}%`);
-    hint.style.setProperty('--size', `${size}px`);
+    hint.style.setProperty('--size', `${Math.floor(renderBB.width * size)}px`);
   };
 
   const calcOffset = ev => {
@@ -46,7 +46,7 @@ const brushSize = (elem, mover) => {
       },
       end() {
         hint.remove();
-        resolve(Math.floor(size));
+        resolve(size);
       }
     });
   });

@@ -161,6 +161,7 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   const bb = renderer.getBoundingClientRect();
   const ratio = canvas.width / bb.width;
   let color = '#000000';
+  let size = 0.02;
 
   const stack = [
     ctx.getImageData(0, 0, canvas.width, canvas.height)
@@ -193,7 +194,7 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.miterLimit = 1;
-      ctx.lineWidth = Math.floor(canvas.width / 50);
+      ctx.lineWidth = Math.floor(canvas.width * size);
       ctx.strokeStyle = color;
 
       point(ev);
@@ -240,6 +241,12 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       enumerable: true,
       get: () => color,
       set: val => { color = val; }
+    },
+    size: {
+      configurable: false,
+      enumerable: true,
+      get: () => size,
+      set: val => { size = val; }
     }
   });
 };
@@ -384,6 +391,12 @@ export default ({ events, mover }) => {
     }
   };
 
+  const onSize = ({ size }) => {
+    if (activeTool) {
+      activeTool.size = size;
+    }
+  };
+
   const onCancel = () => {
     if (activeTool) {
       activeTool.cancel();
@@ -402,6 +415,7 @@ export default ({ events, mover }) => {
   events.on('controls-crop', onCrop);
   events.on('controls-draw', onDraw);
   events.on('controls-color', onColor);
+  events.on('controls-size', onSize);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
 
@@ -410,6 +424,7 @@ export default ({ events, mover }) => {
     events.off('controls-crop', onCrop);
     events.off('controls-draw', onDraw);
     events.off('controls-color', onColor);
+    events.off('controls-size', onSize);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
   };
