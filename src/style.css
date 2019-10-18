@@ -1,6 +1,7 @@
 :root {
   --controls-height: 3em;
   --background: #202124;
+  --middleground: #777777;
   --foreground: #e5e5e5;
   --full: calc(var(--vh, 1vh) * 100);
   --limit: 600px;
@@ -176,6 +177,32 @@ html, body {
   max-width: calc(var(--maxsize) / var(--count) - var(--margin));
   max-height: calc(var(--maxsize) / var(--count) - var(--margin));
   margin: 0 calc(var(--margin) / 2);
+}
+
+/* SLIDER */
+
+.slider {
+  --size: 15px;
+  --height: calc(var(--size) / 3);
+  position: relative;
+  margin: 0 auto;
+  width: 80%;
+  height: var(--height);
+  background: var(--middleground);
+  border-radius: var(--height);
+}
+
+.slider .thumb {
+  --halfsize: calc(var(--size) / 2);
+  position: absolute;
+  top: calc(var(--height) * -1);
+  left: calc(var(--halfsize) * -1 + var(--offset, 0%));
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--size);
+  background: var(--middleground);
+  will-change: transform;
+  box-shadow: inset 0px 0px 5px -1px var(--foreground);
 }
 
 /* TOAST STYLE */
