@@ -52,7 +52,9 @@ const brushSize = (elem, mover) => {
   });
 };
 
-export default ({ events, mover }) => {
+export default ({ events, mover, storage }) => {
+  let DEFAULT_BRUSH_SIZE = storage.get('brush-size') || 0.02;
+  let DEFAULT_BRUSH_COLOR = storage.get('brush-color') || '#000000';
   let deferredPrompt;
 
   const palettes = new Map([
@@ -117,19 +119,26 @@ export default ({ events, mover }) => {
   };
   const onDraw = () => {
     showPalette('draw');
-    events.emit('controls-draw', { color: '#000000' });
+    events.emit('controls-draw', {
+      color: DEFAULT_BRUSH_COLOR,
+      size: DEFAULT_BRUSH_SIZE
+    });
   };
   const onColor = () => {
     showPalette('color');
   };
   const onColorChange = (ev) => {
     showPalette('draw');
-    events.emit('controls-color', { color: ev.target.getAttribute('data-color') });
+    DEFAULT_BRUSH_COLOR = ev.target.getAttribute('data-color');
+    storage.set('brush-color', DEFAULT_BRUSH_COLOR);
+    events.emit('controls-color', { color: DEFAULT_BRUSH_COLOR });
   };
   const onSize = () => {
     showPalette('size');
     brushSize(palettes.get('size').querySelector('.slider'), mover).then(size => {
       showPalette('draw');
+      DEFAULT_BRUSH_SIZE = size;
+      storage.set('brush-size', DEFAULT_BRUSH_SIZE);
       events.emit('controls-size', { size });
     });
   };

@@ -160,6 +160,8 @@ const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
 const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   const bb = renderer.getBoundingClientRect();
   const ratio = canvas.width / bb.width;
+  // note: these defaults don't actually matter, because they
+  // are always set by the controls
   let color = '#000000';
   let size = 0.02;
 
@@ -372,7 +374,7 @@ export default ({ events, mover }) => {
     });
   };
 
-  const onDraw = ({ color }) => {
+  const onDraw = ({ color, size }) => {
     onCancel();
 
     activeTool = drawTool({
@@ -383,6 +385,7 @@ export default ({ events, mover }) => {
       update: ({ data }) => onImageData({ data })
     });
     activeTool.color = color;
+    activeTool.size = size;
   };
 
   const onColor = ({ color }) => {
