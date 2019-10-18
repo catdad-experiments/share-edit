@@ -88,7 +88,7 @@ html, body {
   cursor: default;
 }
 
-.controls.help i {
+.controls.help .material-icons {
   font-size: 1em;
   padding-bottom: 1em;
   width: calc((var(--padding) * 4) + var(--size));
@@ -96,7 +96,7 @@ html, body {
   margin: 0;
 }
 
-.controls.help i::after {
+.controls.help .material-icons::after {
   content: attr(title);
   position: absolute;
   font-size: 0.8em;

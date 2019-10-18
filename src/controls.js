@@ -7,7 +7,8 @@ export default ({ events }) => {
   const palettes = new Map([
     ['general', find('.general-tools')],
     ['crop', find('.crop-tools')],
-    ['draw', find('.draw-tools')]
+    ['draw', find('.draw-tools')],
+    ['color', find('.color-tools')],
   ]);
 
   const showPalette = name => void palettes.forEach((value, key) => {
@@ -27,6 +28,8 @@ export default ({ events }) => {
   const share = find('#share');
   const doneButtons = findAll('.controls [data-cmd=done]');
   const cancelButtons = findAll('.controls [data-cmd=cancel]');
+  const colorSelectButtons = findAll('.controls [data-cmd=color]');
+  const colorButtons = findAll('.controls [data-color]');
 
   const help = find('#help');
 
@@ -61,7 +64,14 @@ export default ({ events }) => {
   };
   const onDraw = () => {
     showPalette('draw');
-    events.emit('controls-draw');
+    events.emit('controls-draw', { color: '#000000' });
+  };
+  const onColorSelect = () => {
+    showPalette('color');
+  };
+  const onColor = (ev) => {
+    showPalette('draw');
+    events.emit('controls-color', { color: ev.target.getAttribute('data-color') });
   };
   const onShare = () => {
     events.emit('info', 'right-click or long-press to share');
@@ -97,8 +107,10 @@ export default ({ events }) => {
   crop.addEventListener('click', onCrop);
   draw.addEventListener('click', onDraw);
   share.addEventListener('click', onShare);
-  doneButtons.forEach(done => done.addEventListener('click', onDone));
-  cancelButtons.forEach(done => done.addEventListener('click', onCancel));
+  colorSelectButtons.forEach(elem => elem.addEventListener('click', onColorSelect));
+  colorButtons.forEach(elem => elem.addEventListener('click', onColor));
+  doneButtons.forEach(elem => elem.addEventListener('click', onDone));
+  cancelButtons.forEach(elem => elem.addEventListener('click', onCancel));
 
   events.on('can-install', onCanInstall);
 
@@ -110,8 +122,10 @@ export default ({ events }) => {
     crop.removeEventListener('click', onCrop);
     draw.removeEventListener('click', onDraw);
     share.removeEventListener('click', onShare);
-    doneButtons.forEach(done => done.removeEventListener('click', onDone));
-    cancelButtons.forEach(done => done.removeEventListener('click', onCancel));
+    colorSelectButtons.forEach(elem => elem.removeEventListener('click', onColorSelect));
+    colorButtons.forEach(elem => elem.removeEventListener('click', onColor));
+    doneButtons.forEach(elem => elem.removeEventListener('click', onDone));
+    cancelButtons.forEach(elem => elem.removeEventListener('click', onCancel));
 
     events.off('can-install', onCanInstall);
   };
