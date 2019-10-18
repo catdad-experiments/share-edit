@@ -6,7 +6,7 @@ const between = (min, max, value) => Math.max(Math.min(value, max), min);
 const brushSize = (elem, mover, size) => {
   const renderer = find('.renderer');
   const renderBB = renderer.getBoundingClientRect();
-  const minSize = 0.02;
+  const minSize = 0.01;
   const maxSize = 0.2;
   const hint = document.createElement('div');
   hint.classList.add('brush-hint');
