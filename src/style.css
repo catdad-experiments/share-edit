@@ -162,6 +162,18 @@ html, body {
   width: var(--size);
 }
 
+.color-icon {
+  --count: 10;
+  --margin: 10px;
+  display: inline-block;
+  float: left;
+  border: 1px solid white;
+  border-radius: 100px;
+  width: calc(100vw / var(--count) - var(--margin));
+  height: calc(100vw / var(--count) - var(--margin));
+  margin: 0 calc(var(--margin) / 2);
+}
+
 /* TOAST STYLE */
 
 .toastify.toastify.toastify {
