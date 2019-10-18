@@ -8,54 +8,7 @@ const orientations = {
   '8': 270
 };
 
-const listen = (() => {
-  let listening = false;
-
-  return (elem, { start, move, end } = {}) => {
-    const onStart = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (!listening) {
-        listening = true;
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onEnd);
-      }
-
-      if (start) {
-        start(ev);
-      }
-    };
-
-    const onMove = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (move) {
-        move(ev);
-      }
-    };
-
-    const onEnd = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      listening = false;
-
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onEnd);
-
-      if (end) {
-        end(ev);
-      }
-    };
-
-    elem.addEventListener('touchstart', onStart);
-    elem.addEventListener('pointerdown', onStart);
-  };
-})();
-
-const cropTool = ({ canvas, ctx, renderer, update }) => {
+const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
   const { width, height } = canvas;
   const bb = renderer.getBoundingClientRect();
   const color = '#039be5';
@@ -123,7 +76,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
     }, style);
     handle.className = className;
 
-    listen(handle, { move });
+    mover(handle, { move });
 
     div.appendChild(handle);
   });
@@ -131,7 +84,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   (() => {
     let init;
 
-    listen(div, {
+    mover(div, {
       start: ev => {
         if (init || !ev.clientX || !ev.clientY) {
           return;
@@ -204,7 +157,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   return { done, cancel };
 };
 
-const drawTool = ({ canvas, ctx, renderer, update }) => {
+const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   const bb = renderer.getBoundingClientRect();
   const ratio = canvas.width / bb.width;
   let color = '#000000';
@@ -233,7 +186,8 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
       points.shift();
     }
   };
-  listen(div, {
+
+  mover(div, {
     start(ev) {
       ctx.beginPath();
       ctx.lineCap = 'round';
@@ -335,7 +289,7 @@ const readExif = (img) => {
   });
 };
 
-export default ({ events }) => {
+export default ({ events, mover }) => {
   const renderer = document.querySelector('.renderer');
   const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
@@ -403,6 +357,7 @@ export default ({ events }) => {
     onCancel();
 
     activeTool = cropTool({
+      mover,
       canvas,
       ctx,
       renderer,
@@ -414,6 +369,7 @@ export default ({ events }) => {
     onCancel();
 
     activeTool = drawTool({
+      mover,
       canvas,
       ctx,
       renderer,
