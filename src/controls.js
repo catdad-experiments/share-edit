@@ -3,33 +3,29 @@ const findAll = selector => [...document.querySelectorAll(selector)];
 
 const between = (min, max, value) => Math.max(Math.min(value, max), min);
 
-const brushSize = (elem, mover) => {
+const brushSize = (elem, mover, size) => {
   const renderer = find('.renderer');
   const renderBB = renderer.getBoundingClientRect();
-  const minSize = 2;
-  const maxSize = 20;
+  const minSize = 0.02;
+  const maxSize = 0.2;
   const hint = document.createElement('div');
   hint.classList.add('brush-hint');
 
-  let offset = 0;
+  let ratio = (size - minSize) / (maxSize - minSize);
   let bb;
-  let size;
 
-  const setElements = () => {
-    const ratio = offset / 100;
-    size = Math.floor((minSize * (1-ratio)) + (maxSize * ratio)) / 100;
-
-    elem.style.setProperty('--offset', `${Math.floor(offset)}%`);
+  const display = () => {
+    elem.style.setProperty('--offset', `${Math.floor(ratio * 100)}%`);
     hint.style.setProperty('--size', `${Math.floor(renderBB.width * size)}px`);
   };
 
-  const calcOffset = ev => {
-    offset = between(0, 100, (ev.clientX - bb.left) / bb.width * 100);
-    setElements();
+  const calculate = ev => {
+    ratio = between(0, 1, (ev.clientX - bb.left) / bb.width);
+    size = (minSize * (1-ratio)) + (maxSize * ratio);
   };
 
   renderer.appendChild(hint);
-  setElements();
+  display();
 
   return new Promise(resolve => {
     mover(elem, {
@@ -39,10 +35,12 @@ const brushSize = (elem, mover) => {
         }
 
         bb = elem.getBoundingClientRect();
-        calcOffset(ev);
+        calculate(ev);
+        display();
       },
       move(ev) {
-        calcOffset(ev);
+        calculate(ev);
+        display();
       },
       end() {
         hint.remove();
@@ -135,7 +133,11 @@ export default ({ events, mover, storage }) => {
   };
   const onSize = () => {
     showPalette('size');
-    brushSize(palettes.get('size').querySelector('.slider'), mover).then(size => {
+    brushSize(
+      palettes.get('size').querySelector('.slider'),
+      mover,
+      DEFAULT_BRUSH_SIZE
+    ).then(size => {
       showPalette('draw');
       DEFAULT_BRUSH_SIZE = size;
       storage.set('brush-size', DEFAULT_BRUSH_SIZE);
