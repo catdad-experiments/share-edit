@@ -88,7 +88,7 @@ html, body {
   cursor: default;
 }
 
-.controls.help i {
+.controls.help .material-icons {
   font-size: 1em;
   padding-bottom: 1em;
   width: calc((var(--padding) * 4) + var(--size));
@@ -96,7 +96,7 @@ html, body {
   margin: 0;
 }
 
-.controls.help i::after {
+.controls.help .material-icons::after {
   content: attr(title);
   position: absolute;
   font-size: 0.8em;
@@ -160,6 +160,18 @@ html, body {
 .handle-v::after {
   transform: translate(calc(-1 * var(--size) * (0.25)));
   width: var(--size);
+}
+
+.color-icon {
+  --count: 10;
+  --margin: 10px;
+  display: inline-block;
+  float: left;
+  border: 1px solid white;
+  border-radius: 100px;
+  width: calc(100vw / var(--count) - var(--margin));
+  height: calc(100vw / var(--count) - var(--margin));
+  margin: 0 calc(var(--margin) / 2);
 }
 
 /* TOAST STYLE */
