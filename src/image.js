@@ -70,7 +70,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   });
 
   const size = '9px';
-  const offset = '-4px';
+  const offset = '-5px';
 
   [{
     className: 'handle-h handle-n',
@@ -290,12 +290,41 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
   });
 };
 
-const loadImage = (img, url) => {
+const getBlob = (canvas) => {
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob(blob => resolve(blob), 'image/png');
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const loadUrl = (img, url) => {
   return new Promise((resolve, reject) => {
     img.onload = () => resolve();
     img.onerror = e => reject(e);
     img.src = url;
   });
+};
+
+const loadBlob = async (img, blob, afterLoad) => {
+  const url = URL.createObjectURL(blob);
+  let result;
+
+  try {
+    result = await loadUrl(img, url);
+
+    if (afterLoad) {
+      result = await afterLoad();
+    }
+  } catch (e) {
+    throw e;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+
+  return result;
 };
 
 const readExif = (img) => {
@@ -315,10 +344,14 @@ export default ({ events }) => {
   let width;
   let height;
 
-  const onUpdate = () => {
-    setTimeout(() => {
-      hiddenImg.src = canvas.toDataURL('image/png');
-    }, 0);
+  const onUpdate = async () => {
+    try {
+      const blob = await getBlob(canvas);
+      await loadBlob(hiddenImg, blob);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Handled Error:', e);
+    }
   };
 
   const onImageData = ({ data }) => {
@@ -333,12 +366,9 @@ export default ({ events }) => {
     onCancel();
 
     const img = new Image();
-    const url = URL.createObjectURL(file);
 
     try {
-      await loadImage(img, url);
-      const { Orientation: orientation } = await readExif(img);
-
+      const { Orientation: orientation } = await loadBlob(img, file, async () => await readExif(img));
       const { naturalWidth: w, naturalHeight: h } = img;
 
       canvas.width = width = w;
@@ -366,8 +396,6 @@ export default ({ events }) => {
       onUpdate();
     } catch (e) {
       events.emit('error', e);
-    } finally {
-      URL.revokeObjectURL(url);
     }
   };
 
