@@ -222,26 +222,48 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
     bottom: 0,
   });
 
+  const points = [];
+  const point = ev => {
+    points.push({
+      x: (ev.clientX - bb.left) * ratio,
+      y: (ev.clientY - bb.top) * ratio
+    });
+
+    if (points.length > 2) {
+      points.shift();
+    }
+  };
   listen(div, {
     start(ev) {
       ctx.beginPath();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.lineWidth = 26;
+      ctx.miterLimit = 1;
+      ctx.lineWidth = Math.floor(canvas.width / 50);
       ctx.strokeStyle = color;
-      ctx.moveTo(
-        (ev.clientX - bb.left) * ratio,
-        (ev.clientY - bb.top) * ratio
-      );
+
+      point(ev);
+      ctx.moveTo(points[0].x, points[0].y);
     },
     move(ev) {
-      ctx.lineTo(
-        (ev.clientX - bb.left) * ratio,
-        (ev.clientY - bb.top) * ratio
+      point(ev);
+
+      const first = points[0];
+      const last = points[points.length - 1];
+
+      ctx.quadraticCurveTo(
+        last.x,
+        last.y,
+        (first.x + last.x) / 2,
+        (first.y + last.y) / 2
       );
       ctx.stroke();
     },
     end() {
+      while (points.length) {
+        points.pop();
+      }
+
       ctx.closePath();
       stack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
