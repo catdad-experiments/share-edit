@@ -74,7 +74,7 @@ export default ({ events }) => {
     events.emit('controls-color', { color: ev.target.getAttribute('data-color') });
   };
   const onShare = () => {
-    events.emit('info', 'right-click or long-press to share');
+    events.emit('info', 'right-click or long-press to share or save');
   };
   const onCanInstall = ({ prompt }) => {
     if (deferredPrompt === 0) {
