@@ -1,7 +1,43 @@
 const find = selector => document.querySelector(selector);
 const findAll = selector => [...document.querySelectorAll(selector)];
 
-export default ({ events }) => {
+const between = (min, max, value) => Math.max(Math.min(value, max), min);
+
+const brushSize = (elem, mover, set) => {
+  const renderer = find('.renderer');
+  const hint = document.createElement('div');
+  hint.classList.add('brush-hint');
+
+  let bb;
+  let offset;
+
+  const update = ev => {
+    offset = between(0, 100, (ev.clientX - bb.left) / bb.width * 100);
+    elem.style.setProperty('--offset', `${Math.floor(offset)}%`);
+  };
+
+  mover(elem, {
+    start(ev) {
+      if (!ev.clientX) {
+        return;
+      }
+
+      renderer.appendChild(hint);
+
+      bb = elem.getBoundingClientRect();
+      update(ev);
+    },
+    move(ev) {
+      update(ev);
+    },
+    end() {
+      hint.remove();
+      set(offset);
+    }
+  });
+};
+
+export default ({ events, mover }) => {
   let deferredPrompt;
 
   const palettes = new Map([
