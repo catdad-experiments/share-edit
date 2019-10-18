@@ -23,7 +23,8 @@ export default ({ events }) => {
   const openInput = find('#open-input');
   const crop = find('#crop');
   const share = find('#share');
-  const doneButtons = findAll('.controls .done');
+  const doneButtons = findAll('.controls [data-cmd=done]');
+  const cancelButtons = findAll('.controls [data-cmd=cancel]');
 
   const help = find('#help');
 
@@ -47,6 +48,10 @@ export default ({ events }) => {
   const onDone = () => {
     void showPalette('general');
     events.emit('controls-done');
+  };
+  const onCancel = () => {
+    showPalette('general');
+    events.emit('controls-cancel');
   };
   const onCrop = () => {
     void showPalette('crop');
@@ -86,6 +91,7 @@ export default ({ events }) => {
   crop.addEventListener('click', onCrop);
   share.addEventListener('click', onShare);
   doneButtons.forEach(done => done.addEventListener('click', onDone));
+  cancelButtons.forEach(done => done.addEventListener('click', onCancel));
 
   events.on('can-install', onCanInstall);
 
@@ -97,6 +103,7 @@ export default ({ events }) => {
     crop.removeEventListener('click', onCrop);
     share.removeEventListener('click', onShare);
     doneButtons.forEach(done => done.removeEventListener('click', onDone));
+    cancelButtons.forEach(done => done.removeEventListener('click', onCancel));
 
     events.off('can-install', onCanInstall);
   };
