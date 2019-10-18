@@ -70,7 +70,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   });
 
   const size = '9px';
-  const offset = '-4px';
+  const offset = '-5px';
 
   [{
     className: 'handle-h handle-n',
