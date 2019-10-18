@@ -35,11 +35,14 @@ const menu = (...items) => {
     };
 
     const toasts = items.map(item => {
-      return toast('black')(item.content, {
-        onClick: () => onSelect(item),
+      return Toastify({
+        text: item.content,
+        gravity: 'bottom',
+        position: 'center',
+        duration: -1,
         className: 'toast-menu-item',
-        gravity: 'bottom'
-      });
+        onClick: () => onSelect(item),
+      }).showToast();
     });
   });
 };

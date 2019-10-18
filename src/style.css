@@ -167,4 +167,10 @@ html, body {
 .toastify.toastify.toastify {
   max-width: calc(100% - 20px);
   text-align: center;
+  color: var(--foreground);
+}
+
+.toastify.toast-menu-item {
+  box-shadow: none;
+  background: var(--background);
 }
