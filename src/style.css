@@ -1,8 +1,10 @@
 :root {
   --controls-height: 3em;
   --background: #202124;
+  --middleground: #777777;
   --foreground: #e5e5e5;
   --full: calc(var(--vh, 1vh) * 100);
+  --limit: 600px;
 }
 
 html, body {
@@ -48,7 +50,7 @@ html, body {
 }
 
 .limit {
-  max-width: 600px;
+  max-width: var(--limit);
   margin-left: auto;
   margin-right: auto;
 }
@@ -143,6 +145,18 @@ html, body {
   max-height: 100%;
 }
 
+.renderer .brush-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--size, 0px);
+  height: var(--size, 0px);
+  border-radius: var(--size, 0px);
+  border: 1px solid var(--foreground);
+  box-shadow: 0 0 5px 0 var(--background), inset 0 0 5px 0 var(--background);
+}
+
 .handle-h::after,
 .handle-v::after {
   --size: 24px;
@@ -165,13 +179,42 @@ html, body {
 .color-icon {
   --count: 10;
   --margin: 10px;
+  --maxsize: calc(var(--limit) * 0.8);
   display: inline-block;
   float: left;
   border: 1px solid white;
   border-radius: 100px;
   width: calc(100vw / var(--count) - var(--margin));
   height: calc(100vw / var(--count) - var(--margin));
+  max-width: calc(var(--maxsize) / var(--count) - var(--margin));
+  max-height: calc(var(--maxsize) / var(--count) - var(--margin));
   margin: 0 calc(var(--margin) / 2);
+}
+
+/* SLIDER */
+
+.slider {
+  --size: 15px;
+  --height: calc(var(--size) / 3);
+  position: relative;
+  margin: 0 auto;
+  width: 80%;
+  height: var(--height);
+  background: var(--middleground);
+  border-radius: var(--height);
+}
+
+.slider .thumb {
+  --halfsize: calc(var(--size) / 2);
+  position: absolute;
+  top: calc(var(--height) * -1);
+  left: calc(var(--halfsize) * -1 + var(--offset, 0%));
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--size);
+  background: var(--middleground);
+  will-change: transform;
+  box-shadow: inset 0px 0px 5px -1px var(--foreground);
 }
 
 /* TOAST STYLE */

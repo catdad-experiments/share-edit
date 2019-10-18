@@ -8,54 +8,7 @@ const orientations = {
   '8': 270
 };
 
-const listen = (() => {
-  let listening = false;
-
-  return (elem, { start, move, end } = {}) => {
-    const onStart = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (!listening) {
-        listening = true;
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onEnd);
-      }
-
-      if (start) {
-        start(ev);
-      }
-    };
-
-    const onMove = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      if (move) {
-        move(ev);
-      }
-    };
-
-    const onEnd = (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      listening = false;
-
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onEnd);
-
-      if (end) {
-        end(ev);
-      }
-    };
-
-    elem.addEventListener('touchstart', onStart);
-    elem.addEventListener('pointerdown', onStart);
-  };
-})();
-
-const cropTool = ({ canvas, ctx, renderer, update }) => {
+const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
   const { width, height } = canvas;
   const bb = renderer.getBoundingClientRect();
   const color = '#039be5';
@@ -123,7 +76,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
     }, style);
     handle.className = className;
 
-    listen(handle, { move });
+    mover(handle, { move });
 
     div.appendChild(handle);
   });
@@ -131,7 +84,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   (() => {
     let init;
 
-    listen(div, {
+    mover(div, {
       start: ev => {
         if (init || !ev.clientX || !ev.clientY) {
           return;
@@ -204,10 +157,13 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
   return { done, cancel };
 };
 
-const drawTool = ({ canvas, ctx, renderer, update }) => {
+const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   const bb = renderer.getBoundingClientRect();
   const ratio = canvas.width / bb.width;
+  // note: these defaults don't actually matter, because they
+  // are always set by the controls
   let color = '#000000';
+  let size = 0.02;
 
   const stack = [
     ctx.getImageData(0, 0, canvas.width, canvas.height)
@@ -233,13 +189,14 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
       points.shift();
     }
   };
-  listen(div, {
+
+  mover(div, {
     start(ev) {
       ctx.beginPath();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.miterLimit = 1;
-      ctx.lineWidth = Math.floor(canvas.width / 50);
+      ctx.lineWidth = Math.floor(canvas.width * size);
       ctx.strokeStyle = color;
 
       point(ev);
@@ -286,6 +243,12 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
       enumerable: true,
       get: () => color,
       set: val => { color = val; }
+    },
+    size: {
+      configurable: false,
+      enumerable: true,
+      get: () => size,
+      set: val => { size = val; }
     }
   });
 };
@@ -335,7 +298,7 @@ const readExif = (img) => {
   });
 };
 
-export default ({ events }) => {
+export default ({ events, mover }) => {
   const renderer = document.querySelector('.renderer');
   const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
@@ -403,6 +366,7 @@ export default ({ events }) => {
     onCancel();
 
     activeTool = cropTool({
+      mover,
       canvas,
       ctx,
       renderer,
@@ -410,21 +374,29 @@ export default ({ events }) => {
     });
   };
 
-  const onDraw = ({ color }) => {
+  const onDraw = ({ color, size }) => {
     onCancel();
 
     activeTool = drawTool({
+      mover,
       canvas,
       ctx,
       renderer,
       update: ({ data }) => onImageData({ data })
     });
     activeTool.color = color;
+    activeTool.size = size;
   };
 
   const onColor = ({ color }) => {
     if (activeTool) {
       activeTool.color = color;
+    }
+  };
+
+  const onSize = ({ size }) => {
+    if (activeTool) {
+      activeTool.size = size;
     }
   };
 
@@ -446,6 +418,7 @@ export default ({ events }) => {
   events.on('controls-crop', onCrop);
   events.on('controls-draw', onDraw);
   events.on('controls-color', onColor);
+  events.on('controls-size', onSize);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
 
@@ -454,6 +427,7 @@ export default ({ events }) => {
     events.off('controls-crop', onCrop);
     events.off('controls-draw', onDraw);
     events.off('controls-color', onColor);
+    events.off('controls-size', onSize);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
   };
