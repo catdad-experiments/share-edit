@@ -74,6 +74,7 @@ export default () => {
     'navigator.serviceWorker',
     'Promise',
     'Map',
+    'localStorage',
     ['dynamic import', () => {
       try {
         new Function('import("").catch(() => {})')();
@@ -112,15 +113,19 @@ export default () => {
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
+    load('./storage.js'),
+    load('./mover.js'),
     load('./image.js'),
     load('./controls.js'),
     load('./window-size.js'),
   ]).then(([
     eventEmitter,
+    storage,
+    mover,
     ...modules
   ]) => {
     // set up a global event emitter
-    const context = { events: eventEmitter() };
+    const context = { events: eventEmitter(), mover, storage };
     const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {
