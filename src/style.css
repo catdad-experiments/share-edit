@@ -145,6 +145,18 @@ html, body {
   max-height: 100%;
 }
 
+.renderer .brush-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--size, 0px);
+  height: var(--size, 0px);
+  border-radius: var(--size, 0px);
+  border: 1px solid var(--foreground);
+  box-shadow: 0 0 5px 0 var(--background), inset 0 0 5px 0 var(--background);
+}
+
 .handle-h::after,
 .handle-v::after {
   --size: 24px;

@@ -3,37 +3,52 @@ const findAll = selector => [...document.querySelectorAll(selector)];
 
 const between = (min, max, value) => Math.max(Math.min(value, max), min);
 
-const brushSize = (elem, mover, set) => {
+const brushSize = (elem, mover) => {
   const renderer = find('.renderer');
+  const renderBB = renderer.getBoundingClientRect();
+  const minSize = Math.floor(renderBB.width * 0.05);
+  const maxSize = Math.floor(renderBB.width * 0.3);
   const hint = document.createElement('div');
   hint.classList.add('brush-hint');
 
+  let offset = 0;
   let bb;
-  let offset;
+  let size;
 
-  const update = ev => {
-    offset = between(0, 100, (ev.clientX - bb.left) / bb.width * 100);
+  const setElements = () => {
+    const ratio = offset / 100;
+    size = Math.floor((minSize * (1-ratio)) + (maxSize * ratio));
+
     elem.style.setProperty('--offset', `${Math.floor(offset)}%`);
+    hint.style.setProperty('--size', `${size}px`);
   };
 
-  mover(elem, {
-    start(ev) {
-      if (!ev.clientX) {
-        return;
+  const calcOffset = ev => {
+    offset = between(0, 100, (ev.clientX - bb.left) / bb.width * 100);
+    setElements();
+  };
+
+  renderer.appendChild(hint);
+  setElements();
+
+  return new Promise(resolve => {
+    mover(elem, {
+      start(ev) {
+        if (!ev.clientX) {
+          return;
+        }
+
+        bb = elem.getBoundingClientRect();
+        calcOffset(ev);
+      },
+      move(ev) {
+        calcOffset(ev);
+      },
+      end() {
+        hint.remove();
+        resolve(Math.floor(size));
       }
-
-      renderer.appendChild(hint);
-
-      bb = elem.getBoundingClientRect();
-      update(ev);
-    },
-    move(ev) {
-      update(ev);
-    },
-    end() {
-      hint.remove();
-      set(offset);
-    }
+    });
   });
 };
 
@@ -45,6 +60,7 @@ export default ({ events, mover }) => {
     ['crop', find('.crop-tools')],
     ['draw', find('.draw-tools')],
     ['color', find('.color-tools')],
+    ['size', find('.size-tools')],
   ]);
 
   const showPalette = name => void palettes.forEach((value, key) => {
@@ -64,8 +80,9 @@ export default ({ events, mover }) => {
   const share = find('#share');
   const doneButtons = findAll('.controls [data-cmd=done]');
   const cancelButtons = findAll('.controls [data-cmd=cancel]');
-  const colorSelectButtons = findAll('.controls [data-cmd=color]');
-  const colorButtons = findAll('.controls [data-color]');
+  const colorButtons = findAll('.controls [data-cmd=color]');
+  const colorChangers = findAll('.controls [data-color]');
+  const sizeButtons = findAll('.controls [data-cmd=size]');
 
   const help = find('#help');
 
@@ -102,12 +119,19 @@ export default ({ events, mover }) => {
     showPalette('draw');
     events.emit('controls-draw', { color: '#000000' });
   };
-  const onColorSelect = () => {
+  const onColor = () => {
     showPalette('color');
   };
-  const onColor = (ev) => {
+  const onColorChange = (ev) => {
     showPalette('draw');
     events.emit('controls-color', { color: ev.target.getAttribute('data-color') });
+  };
+  const onSize = () => {
+    showPalette('size');
+    brushSize(palettes.get('size').querySelector('.slider'), mover).then(size => {
+      showPalette('draw');
+      events.emit('controls-size', { size });
+    });
   };
   const onShare = () => {
     events.emit('info', 'right-click or long-press to share or save');
@@ -143,8 +167,9 @@ export default ({ events, mover }) => {
   crop.addEventListener('click', onCrop);
   draw.addEventListener('click', onDraw);
   share.addEventListener('click', onShare);
-  colorSelectButtons.forEach(elem => elem.addEventListener('click', onColorSelect));
   colorButtons.forEach(elem => elem.addEventListener('click', onColor));
+  colorChangers.forEach(elem => elem.addEventListener('click', onColorChange));
+  sizeButtons.forEach(elem => elem.addEventListener('click', onSize));
   doneButtons.forEach(elem => elem.addEventListener('click', onDone));
   cancelButtons.forEach(elem => elem.addEventListener('click', onCancel));
 
@@ -158,8 +183,9 @@ export default ({ events, mover }) => {
     crop.removeEventListener('click', onCrop);
     draw.removeEventListener('click', onDraw);
     share.removeEventListener('click', onShare);
-    colorSelectButtons.forEach(elem => elem.removeEventListener('click', onColorSelect));
     colorButtons.forEach(elem => elem.removeEventListener('click', onColor));
+    colorChangers.forEach(elem => elem.removeEventListener('click', onColorChange));
+    sizeButtons.forEach(elem => elem.removeEventListener('click', onSize));
     doneButtons.forEach(elem => elem.removeEventListener('click', onDone));
     cancelButtons.forEach(elem => elem.removeEventListener('click', onCancel));
 
