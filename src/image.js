@@ -207,6 +207,7 @@ const cropTool = ({ canvas, ctx, renderer, update }) => {
 const drawTool = ({ canvas, ctx, renderer, update }) => {
   const bb = renderer.getBoundingClientRect();
   const ratio = canvas.width / bb.width;
+  let color = '#000000';
 
   const stack = [
     ctx.getImageData(0, 0, canvas.width, canvas.height)
@@ -223,10 +224,11 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
 
   listen(div, {
     start(ev) {
+      ctx.beginPath();
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.lineWidth = 26;
-      ctx.strokeStyle = 'pink';
+      ctx.strokeStyle = color;
       ctx.moveTo(
         (ev.clientX - bb.left) * ratio,
         (ev.clientY - bb.top) * ratio
@@ -240,6 +242,7 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
       ctx.stroke();
     },
     end() {
+      ctx.closePath();
       stack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     }
   });
@@ -255,7 +258,14 @@ const drawTool = ({ canvas, ctx, renderer, update }) => {
     update({ data: stack[0] });
   };
 
-  return { done, cancel };
+  return Object.defineProperties({ done, cancel }, {
+    color: {
+      configurable: false,
+      enumerable: true,
+      get: () => color,
+      set: val => { color = val; }
+    }
+  });
 };
 
 const loadImage = (img, url) => {
@@ -350,7 +360,7 @@ export default ({ events }) => {
     });
   };
 
-  const onDraw = () => {
+  const onDraw = ({ color }) => {
     onCancel();
 
     activeTool = drawTool({
@@ -359,6 +369,13 @@ export default ({ events }) => {
       renderer,
       update: ({ data }) => onImageData({ data })
     });
+    activeTool.color = color;
+  };
+
+  const onColor = ({ color }) => {
+    if (activeTool) {
+      activeTool.color = color;
+    }
   };
 
   const onCancel = () => {
@@ -378,6 +395,7 @@ export default ({ events }) => {
   events.on('display-image', onFile);
   events.on('controls-crop', onCrop);
   events.on('controls-draw', onDraw);
+  events.on('controls-color', onColor);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
 
@@ -385,6 +403,7 @@ export default ({ events }) => {
     events.off('display-image', onFile);
     events.off('controls-crop', onCrop);
     events.off('controls-draw', onDraw);
+    events.off('controls-color', onColor);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
   };
