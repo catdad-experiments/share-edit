@@ -3,6 +3,7 @@
   --background: #202124;
   --foreground: #e5e5e5;
   --full: calc(var(--vh, 1vh) * 100);
+  --limit: 600px;
 }
 
 html, body {
@@ -48,7 +49,7 @@ html, body {
 }
 
 .limit {
-  max-width: 600px;
+  max-width: var(--limit);
   margin-left: auto;
   margin-right: auto;
 }
@@ -165,12 +166,15 @@ html, body {
 .color-icon {
   --count: 10;
   --margin: 10px;
+  --maxsize: calc(var(--limit) * 0.8);
   display: inline-block;
   float: left;
   border: 1px solid white;
   border-radius: 100px;
   width: calc(100vw / var(--count) - var(--margin));
   height: calc(100vw / var(--count) - var(--margin));
+  max-width: calc(var(--maxsize) / var(--count) - var(--margin));
+  max-height: calc(var(--maxsize) / var(--count) - var(--margin));
   margin: 0 calc(var(--margin) / 2);
 }
 
