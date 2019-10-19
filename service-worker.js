@@ -79,7 +79,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  log('fetch', event.request.url);
+  log('fetch', event.request.method, event.request.url);
   const url = new URL(event.request.url);
 
   const isSameOrigin = url.origin === location.origin;
