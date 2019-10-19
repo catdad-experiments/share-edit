@@ -1,41 +1,35 @@
 /* eslint-disable no-console */
 /* globals self, Response */
 
+// this is needed to create a binary-different file when
+// I don't need to make any actual changes to this file
+const VERSION = 'v1';
 const WORKER = '👷';
+const KEY = 'share-edit-v1';
+const PATHS = [
+  './',
+  // modules
+  './src/loader.js',
+  './src/toast.js',
+  './src/event-emitter.js',
+  './src/storage.js',
+  './src/mover.js',
+  './src/image.js',
+  './src/controls.js',
+  './src/window-size.js',
+  // style and assets
+  './src/style.css',
+  './manifest.json',
+  './assets/icon-512.png',
+  // cdn files
+  'https://fonts.googleapis.com/icon?family=Material+Icons',
+  'https://fonts.gstatic.com/s/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2',
+  'https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.css',
+  'https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.js',
+  'https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.min.js',
+];
 
-const console = (() => {
-  const send = (...args) => {
-    self.clients.matchAll().then(clients => {
-      if (!clients.length) {
-        setTimeout(() => {
-          send(...args);
-        }, 100);
-      }
-
-      clients.forEach(client => {
-        client.postMessage({
-          action: 'log',
-          args: args
-        });
-      });
-    });
-  };
-
-  return {
-    log: send,
-    error: send
-  };
-})();
-
-console.log(WORKER, 'loaded');
-
-const messageMap = new Map();
-
-const nextMessage = str => new Promise(resolve => {
-  const resolvers = messageMap.get(str) || [];
-  resolvers.push(() => resolve());
-  messageMap.set(str, resolvers);
-});
+const log = (...args) => console.log(WORKER, VERSION, ...args);
 
 const serveShareTarget = event => {
   // Redirect so the user can refresh the page without resending data.
@@ -51,28 +45,44 @@ const serveShareTarget = event => {
   }());
 };
 
-self.addEventListener('message', event => {
-  const resolvers = messageMap.get(event.data);
-  if (!resolvers) return;
-  messageMap.delete(event.data);
+const createCache = async () => {
+  const cache = await caches.open(KEY);
 
-  for (let func in resolvers) {
-    func();
+  for (let i in cache) {
+    console.log(i, typeof cache[i]);
   }
+
+  await cache.addAll(PATHS);
+};
+
+const clearCache = async () => {
+  log('CLEARING CACHE');
+  await caches.delete(KEY);
+};
+
+self.addEventListener('install', (event) => {
+  log('INSTALL start');
+  const start = Date.now();
+  event.waitUntil((async () => {
+    await createCache();
+    await self.skipWaiting();
+    log('INSTALL done in', Date.now() - start);
+  })());
 });
 
-self.addEventListener('install', () => {
-  console.log(WORKER, 'install');
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', () => {
-  console.log(WORKER, 'activate');
-  return self.clients.claim();
+self.addEventListener('activate', (event) => {
+  log('ACTIVATE start');
+  const start = Date.now();
+  event.waitUntil((async () => {
+    await clearCache();
+    await createCache();
+    await self.clients.claim();
+    log('ACTIVATE done in', Date.now() - start);
+  })());
 });
 
 self.addEventListener('fetch', (event) => {
-  console.log(WORKER, 'fetch', event.request.url);
+  log('fetch', event.request.method, event.request.url);
   const url = new URL(event.request.url);
 
   const isSameOrigin = url.origin === location.origin;
@@ -80,7 +90,20 @@ self.addEventListener('fetch', (event) => {
   const isShareTarget = event.request.method === 'POST' && url.searchParams.has('share-target');
 
   if (isSameOrigin && isShareTarget) {
-    console.log(WORKER, 'handling share target request');
+    log('handling share target request');
     return void serveShareTarget(event);
   }
+
+  event.respondWith((async () => {
+    const cache = await caches.open(KEY);
+    const response = await cache.match(event.request);
+
+    if (response) {
+      log('serving cache result for', event.request.method, event.request.url);
+      return response;
+    }
+
+    log('serving network result for', event.request.method, event.request.url);
+    return fetch(event.request);
+  })());
 });
