@@ -271,25 +271,6 @@ const loadUrl = (img, url) => {
   });
 };
 
-const loadBlob = async (img, blob, afterLoad) => {
-  const url = URL.createObjectURL(blob);
-  let result;
-
-  try {
-    result = await loadUrl(img, url);
-
-    if (afterLoad) {
-      result = await afterLoad();
-    }
-  } catch (e) {
-    throw e;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-
-  return result;
-};
-
 const readExif = (img) => {
   return Promise.resolve().then(() => {
     return new Promise(r => EXIF.getData(img, () => r()));
@@ -307,15 +288,25 @@ export default ({ events, mover }) => {
   let width;
   let height;
 
-  const onUpdate = async () => {
-    try {
-      const blob = await getBlob(canvas);
-      await loadBlob(hiddenImg, blob);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('Handled Error:', e);
-    }
-  };
+  const onUpdate = (() => {
+    let url;
+
+    return async () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+        url = null;
+      }
+
+      try {
+        const blob = await getBlob(canvas);
+        const url = URL.createObjectURL(blob);
+        await loadUrl(hiddenImg, url);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Handled Error:', e);
+      }
+    };
+  })();
 
   const onImageData = ({ data }) => {
     canvas.width = width = data.width;
@@ -329,9 +320,11 @@ export default ({ events, mover }) => {
     onCancel();
 
     const img = new Image();
+    const url = URL.createObjectURL(file);
 
     try {
-      const { Orientation: orientation } = await loadBlob(img, file, async () => await readExif(img));
+      await loadUrl(img, url);
+      const { Orientation: orientation } = await readExif(img);
       const { naturalWidth: w, naturalHeight: h } = img;
 
       canvas.width = width = w;
@@ -359,6 +352,8 @@ export default ({ events, mover }) => {
       onUpdate();
     } catch (e) {
       events.emit('error', e);
+    } finally {
+      URL.revokeObjectURL(url);
     }
   };
 

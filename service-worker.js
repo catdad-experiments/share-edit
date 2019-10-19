@@ -3,7 +3,7 @@
 
 // this is needed to create a binary-different file when
 // I don't need to make any actual changes to this file
-const VERSION = 'v1';
+const VERSION = 'v1.0.1';
 const WORKER = '👷';
 const KEY = 'share-edit-v1';
 const PATHS = [
@@ -92,6 +92,13 @@ self.addEventListener('fetch', (event) => {
   if (isSharePost) {
     log('handling share target request');
     return void serveShareTarget(event);
+  }
+
+  const isLocal = /^([0-9]+\.){3}[0-9]+$/.test(location.hostname);
+  // const isLocal = location.hostname === 'localhost' || /^([0-9]+\.){3}[0-9]+$/.test(location.hostname);
+
+  if (isLocal) {
+    return;
   }
 
   event.respondWith((async () => {
