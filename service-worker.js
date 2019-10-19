@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 /* globals self, Response */
 
+// this is needed to create a binary-different file when
+// I don't need to make any actual changes to this file
+const VERSION = 'v1';
 const WORKER = '👷';
 const KEY = 'share-edit-v1';
 const PATHS = [
@@ -26,7 +29,7 @@ const PATHS = [
   'https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.min.js',
 ];
 
-const log = (...args) => console.log(WORKER, ...args);
+const log = (...args) => console.log(WORKER, VERSION, ...args);
 
 const serveShareTarget = event => {
   // Redirect so the user can refresh the page without resending data.
