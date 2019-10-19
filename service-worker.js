@@ -86,17 +86,19 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   const isSameOrigin = url.origin === location.origin;
+  const isShareTarget = isSameOrigin && url.searchParams.has('share-target');
+  const isSharePost = isShareTarget && event.request.method === 'POST';
 
-  const isShareTarget = event.request.method === 'POST' && url.searchParams.has('share-target');
-
-  if (isSameOrigin && isShareTarget) {
+  if (isSharePost) {
     log('handling share target request');
     return void serveShareTarget(event);
   }
 
   event.respondWith((async () => {
     const cache = await caches.open(KEY);
-    const response = await cache.match(event.request);
+    const response = !isShareTarget ?
+      await cache.match(event.request) :
+      await cache.match(event.request, { ignoreSearch: true });
 
     if (response) {
       log('serving cache result for', event.request.method, event.request.url);
