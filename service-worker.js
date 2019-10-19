@@ -3,40 +3,6 @@
 
 const WORKER = '👷';
 
-const console = (() => {
-  const send = (...args) => {
-    self.clients.matchAll().then(clients => {
-      if (!clients.length) {
-        setTimeout(() => {
-          send(...args);
-        }, 100);
-      }
-
-      clients.forEach(client => {
-        client.postMessage({
-          action: 'log',
-          args: args
-        });
-      });
-    });
-  };
-
-  return {
-    log: send,
-    error: send
-  };
-})();
-
-console.log(WORKER, 'loaded');
-
-const messageMap = new Map();
-
-const nextMessage = str => new Promise(resolve => {
-  const resolvers = messageMap.get(str) || [];
-  resolvers.push(() => resolve());
-  messageMap.set(str, resolvers);
-});
-
 const serveShareTarget = event => {
   // Redirect so the user can refresh the page without resending data.
   event.respondWith(Response.redirect(event.request.url));
@@ -50,16 +16,6 @@ const serveShareTarget = event => {
     client.postMessage({ file, action: 'load-image' });
   }());
 };
-
-self.addEventListener('message', event => {
-  const resolvers = messageMap.get(event.data);
-  if (!resolvers) return;
-  messageMap.delete(event.data);
-
-  for (let func in resolvers) {
-    func();
-  }
-});
 
 self.addEventListener('install', () => {
   console.log(WORKER, 'install');
