@@ -94,6 +94,13 @@ self.addEventListener('fetch', (event) => {
     return void serveShareTarget(event);
   }
 
+  const isLocal = /^([0-9]+\.){3}[0-9]+$/.test(location.hostname);
+  // const isLocal = location.hostname === 'localhost' || /^([0-9]+\.){3}[0-9]+$/.test(location.hostname);
+
+  if (isLocal) {
+    return;
+  }
+
   event.respondWith((async () => {
     const cache = await caches.open(KEY);
     const response = !isShareTarget ?
