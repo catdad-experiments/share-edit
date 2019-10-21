@@ -71,7 +71,6 @@ export default () => {
 
   // detect missing features in the browser
   const missingFeatures = [
-    'navigator.serviceWorker',
     'Promise',
     'Map',
     'localStorage',
