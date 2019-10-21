@@ -36,8 +36,6 @@ const serveShareTarget = event => {
   event.respondWith(Response.redirect(event.request.url));
 
   event.waitUntil(async function () {
-    // nextMessage('share-ready');
-
     const data = await event.request.formData();
     const client = await self.clients.get(event.resultingClientId);
     const file = data.get('file');
