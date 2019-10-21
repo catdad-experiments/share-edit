@@ -28,9 +28,15 @@ export default (...items) => {
 
     container.appendChild(menu);
 
+    const hasIcons = !!items.find(i => !!i.icon);
+
     items.forEach(item => {
       const el = elem('li');
-      el.appendChild(icon(item.icon));
+
+      if (hasIcons) {
+        el.appendChild(icon(item.icon));
+      }
+
       el.appendChild(document.createTextNode(item.text));
 
       el.onclick = () => {
