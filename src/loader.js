@@ -113,6 +113,7 @@ export default () => {
   Promise.all([
     load('./event-emitter.js'),
     load('./storage.js'),
+    load('./menu.js'),
     load('./mover.js'),
     load('./image.js'),
     load('./controls.js'),
@@ -120,6 +121,7 @@ export default () => {
   ]).then(([
     eventEmitter,
     storage,
+    menu,
     mover,
     ...modules
   ]) => {
