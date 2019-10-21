@@ -13,6 +13,7 @@ const PATHS = [
   './src/toast.js',
   './src/event-emitter.js',
   './src/storage.js',
+  './src/menu.js',
   './src/mover.js',
   './src/image.js',
   './src/controls.js',
