@@ -8,7 +8,9 @@ const orientations = {
   '8': 270
 };
 
-const cropDiv = (bb) => {
+const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
+  const { width, height } = canvas;
+  const bb = renderer.getBoundingClientRect();
   const color = '#039be5';
   const div = document.createElement('div');
   Object.assign(div.style, {
@@ -21,54 +23,7 @@ const cropDiv = (bb) => {
   });
 
   const size = '9px';
-  const offset = '-4px';
-
-  const listen = (() => {
-    let listening = false;
-
-    return (elem, { start, move, end } = {}) => {
-      const onStart = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        if (!listening) {
-          listening = true;
-          window.addEventListener('pointermove', onMove);
-          window.addEventListener('pointerup', onEnd);
-        }
-
-        if (start) {
-          start(ev);
-        }
-      };
-
-      const onMove = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        if (move) {
-          move(ev);
-        }
-      };
-
-      const onEnd = (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        listening = false;
-
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onEnd);
-
-        if (end) {
-          end(ev);
-        }
-      };
-
-      elem.addEventListener('touchstart', onStart);
-      elem.addEventListener('pointerdown', onStart);
-    };
-  })();
+  const offset = '-5px';
 
   [{
     className: 'handle-h handle-n',
@@ -121,7 +76,7 @@ const cropDiv = (bb) => {
     }, style);
     handle.className = className;
 
-    listen(handle, { move });
+    mover(handle, { move });
 
     div.appendChild(handle);
   });
@@ -129,7 +84,7 @@ const cropDiv = (bb) => {
   (() => {
     let init;
 
-    listen(div, {
+    mover(div, {
       start: ev => {
         if (init || !ev.clientX || !ev.clientY) {
           return;
@@ -177,10 +132,138 @@ const cropDiv = (bb) => {
     });
   })();
 
-  return div;
+  const done = () => {
+    const cropBox = div.getBoundingClientRect();
+    const imgBox = renderer.getBoundingClientRect();
+
+    const data = ctx.getImageData(
+      (cropBox.x - imgBox.x) / imgBox.width * width,
+      (cropBox.y - imgBox.y) / imgBox.height * height,
+      cropBox.width / imgBox.width * width,
+      cropBox.height / imgBox.height * height
+    );
+
+    cancel();
+
+    update({ data });
+  };
+
+  const cancel = () => {
+    div.remove();
+  };
+
+  renderer.appendChild(div);
+
+  return { done, cancel };
 };
 
-const loadImage = (img, url) => {
+const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
+  const bb = renderer.getBoundingClientRect();
+  const ratio = canvas.width / bb.width;
+  // note: these defaults don't actually matter, because they
+  // are always set by the controls
+  let color = '#000000';
+  let size = 0.02;
+
+  const stack = [
+    ctx.getImageData(0, 0, canvas.width, canvas.height)
+  ];
+
+  const div = document.createElement('div');
+  Object.assign(div.style, {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  });
+
+  const points = [];
+  const point = ev => {
+    points.push({
+      x: (ev.clientX - bb.left) * ratio,
+      y: (ev.clientY - bb.top) * ratio
+    });
+
+    if (points.length > 2) {
+      points.shift();
+    }
+  };
+
+  mover(div, {
+    start(ev) {
+      ctx.beginPath();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 1;
+      ctx.lineWidth = Math.floor(canvas.width * size);
+      ctx.strokeStyle = color;
+
+      point(ev);
+      ctx.moveTo(points[0].x, points[0].y);
+    },
+    move(ev) {
+      point(ev);
+
+      const first = points[0];
+      const last = points[points.length - 1];
+
+      ctx.quadraticCurveTo(
+        last.x,
+        last.y,
+        (first.x + last.x) / 2,
+        (first.y + last.y) / 2
+      );
+      ctx.stroke();
+    },
+    end() {
+      while (points.length) {
+        points.pop();
+      }
+
+      ctx.closePath();
+      stack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    }
+  });
+
+  renderer.appendChild(div);
+
+  const done = () => {
+    div.remove();
+    update({ data: stack.pop() });
+  };
+  const cancel = () => {
+    div.remove();
+    update({ data: stack[0] });
+  };
+
+  return Object.defineProperties({ done, cancel }, {
+    color: {
+      configurable: false,
+      enumerable: true,
+      get: () => color,
+      set: val => { color = val; }
+    },
+    size: {
+      configurable: false,
+      enumerable: true,
+      get: () => size,
+      set: val => { size = val; }
+    }
+  });
+};
+
+const getBlob = (canvas) => {
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob(blob => resolve(blob), 'image/png');
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const loadUrl = (img, url) => {
   return new Promise((resolve, reject) => {
     img.onload = () => resolve();
     img.onerror = e => reject(e);
@@ -196,42 +279,52 @@ const readExif = (img) => {
   });
 };
 
-export default ({ events }) => {
-  const main = document.querySelector('.renderer');
+export default ({ events, mover }) => {
+  const renderer = document.querySelector('.renderer');
   const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
   const ctx = canvas.getContext('2d');
-  let cropTool;
+  let activeTool;
   let width;
   let height;
 
-  const onDraw = () => {
-    setTimeout(() => {
-      hiddenImg.src = canvas.toDataURL('image/png');
-    }, 0);
-  };
+  const onUpdate = (() => {
+    let url;
+
+    return async () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+        url = null;
+      }
+
+      try {
+        const blob = await getBlob(canvas);
+        const url = URL.createObjectURL(blob);
+        await loadUrl(hiddenImg, url);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Handled Error:', e);
+      }
+    };
+  })();
 
   const onImageData = ({ data }) => {
     canvas.width = width = data.width;
     canvas.height = height = data.height;
 
     ctx.putImageData(data, 0, 0);
-    onDraw();
+    onUpdate();
   };
 
   const onFile = async ({ file }) => {
-    if (cropTool) {
-      cropTool.remove();
-      cropTool = null;
-    }
+    onCancel();
 
     const img = new Image();
     const url = URL.createObjectURL(file);
 
     try {
-      await loadImage(img, url);
+      await loadUrl(img, url);
       const { Orientation: orientation } = await readExif(img);
-
       const { naturalWidth: w, naturalHeight: h } = img;
 
       canvas.width = width = w;
@@ -256,7 +349,7 @@ export default ({ events }) => {
       // reset the canvas context
       ctx.setTransform(1,0,0,1,0,0);
 
-      onDraw();
+      onUpdate();
     } catch (e) {
       events.emit('error', e);
     } finally {
@@ -265,43 +358,71 @@ export default ({ events }) => {
   };
 
   const onCrop = () => {
-    cropTool = cropDiv(main.getBoundingClientRect());
-    main.appendChild(cropTool);
+    onCancel();
+
+    activeTool = cropTool({
+      mover,
+      canvas,
+      ctx,
+      renderer,
+      update: ({ data }) => onImageData({ data })
+    });
+  };
+
+  const onDraw = ({ color, size }) => {
+    onCancel();
+
+    activeTool = drawTool({
+      mover,
+      canvas,
+      ctx,
+      renderer,
+      update: ({ data }) => onImageData({ data })
+    });
+    activeTool.color = color;
+    activeTool.size = size;
+  };
+
+  const onColor = ({ color }) => {
+    if (activeTool) {
+      activeTool.color = color;
+    }
+  };
+
+  const onSize = ({ size }) => {
+    if (activeTool) {
+      activeTool.size = size;
+    }
   };
 
   const onCancel = () => {
-    if (cropTool) {
-      cropTool.remove();
-      cropTool = null;
+    if (activeTool) {
+      activeTool.cancel();
+      activeTool = null;
     }
   };
 
   const onDone = () => {
-    if (cropTool) {
-      const cropBox = cropTool.getBoundingClientRect();
-      const imgBox = main.getBoundingClientRect();
-
-      const data = ctx.getImageData(
-        (cropBox.x - imgBox.x) / imgBox.width * width,
-        (cropBox.y - imgBox.y) / imgBox.height * height,
-        cropBox.width / imgBox.width * width,
-        cropBox.height / imgBox.height * height
-      );
-
-      onCancel();
-
-      onImageData({ data });
+    if (activeTool) {
+      activeTool.done();
+      activeTool = null;
     }
   };
 
   events.on('display-image', onFile);
   events.on('controls-crop', onCrop);
+  events.on('controls-draw', onDraw);
+  events.on('controls-color', onColor);
+  events.on('controls-size', onSize);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
 
   return function destroy() {
     events.off('display-image', onFile);
     events.off('controls-crop', onCrop);
+    events.off('controls-draw', onDraw);
+    events.off('controls-color', onColor);
+    events.off('controls-size', onSize);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
   };
