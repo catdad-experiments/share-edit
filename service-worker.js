@@ -47,16 +47,10 @@ const serveShareTarget = event => {
 
 const createCache = async () => {
   const cache = await caches.open(KEY);
-
-  for (let i in cache) {
-    console.log(i, typeof cache[i]);
-  }
-
   await cache.addAll(PATHS);
 };
 
 const clearCache = async () => {
-  log('CLEARING CACHE');
   await caches.delete(KEY);
 };
 
