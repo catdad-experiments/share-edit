@@ -8,6 +8,19 @@ const elem = (type = 'div', className = '') => {
   return el;
 };
 
+const icon = (name) => {
+  const i = elem('i', 'material-icons material-inline');
+
+  if (name) {
+    i.appendChild(document.createTextNode(name));
+  } else {
+    i.appendChild(document.createTextNode('cancel'));
+    i.classList.add('invisible');
+  }
+
+  return i;
+};
+
 export default (...items) => {
   return new Promise((resolve) => {
     const container = elem('div', 'menu');
@@ -17,6 +30,7 @@ export default (...items) => {
 
     items.forEach(item => {
       const el = elem('li');
+      el.appendChild(icon(item.icon));
       el.appendChild(document.createTextNode(item.text));
 
       el.onclick = () => {

@@ -60,6 +60,10 @@ html, body {
   display: none !important;
 }
 
+.invisible {
+  opacity: 0;
+}
+
 /** STUFF ABOVE IS STANDARD FRAMEWORK **/
 
 .main {
@@ -218,7 +222,13 @@ html, body {
 }
 
 .menu > ul > li {
+  display: flex;
+  align-items: center;
   padding: 20px;
+}
+
+.menu > ul > li > i {
+  padding-right: 0.5em;
 }
 
 /* SLIDER */
