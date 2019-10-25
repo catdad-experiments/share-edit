@@ -50,9 +50,10 @@ const brushSize = (elem, mover, size) => {
   });
 };
 
-export default ({ events, mover, storage }) => {
+export default ({ events, menu, mover, storage }) => {
   let DEFAULT_BRUSH_SIZE = storage.get('brush-size') || 0.02;
   let DEFAULT_BRUSH_COLOR = storage.get('brush-color') || '#000000';
+  let DEFAULT_EXPORT_QUALITY = storage.get('export-quality') || { mime: 'image/png', quality: 1 };
   let deferredPrompt;
 
   const palettes = new Map([
@@ -78,6 +79,7 @@ export default ({ events, mover, storage }) => {
   const crop = find('#crop');
   const draw = find('#draw');
   const share = find('#share');
+  const quality = find('#quality');
   const doneButtons = findAll('.controls [data-cmd=done]');
   const cancelButtons = findAll('.controls [data-cmd=cancel]');
   const colorButtons = findAll('.controls [data-cmd=color]');
@@ -119,7 +121,8 @@ export default ({ events, mover, storage }) => {
     showPalette('draw');
     events.emit('controls-draw', {
       color: DEFAULT_BRUSH_COLOR,
-      size: DEFAULT_BRUSH_SIZE
+      size: DEFAULT_BRUSH_SIZE,
+      quality: DEFAULT_EXPORT_QUALITY
     });
   };
   const onColor = () => {
@@ -142,6 +145,29 @@ export default ({ events, mover, storage }) => {
       DEFAULT_BRUSH_SIZE = size;
       storage.set('brush-size', DEFAULT_BRUSH_SIZE);
       events.emit('controls-size', { size });
+    });
+  };
+  const onQuality = () => {
+    const choices = [
+      { mime: 'image/png', quality: 1, text: 'PNG at 100%' },
+      { mime: 'image/jpeg', quality: 1, text: 'JPG at 100%' },
+      { mime: 'image/jpeg', quality: 0.92, text: 'JPG at 92%' },
+      { mime: 'image/jpeg', quality: 0.8, text: 'JPG at 80%' },
+    ].map(choice => {
+      if (choice.mime === DEFAULT_EXPORT_QUALITY.mime && choice.quality === DEFAULT_EXPORT_QUALITY.quality) {
+        return Object.assign({ icon: 'check' }, choice);
+      }
+
+      return choice;
+    });
+
+    menu(...choices).then(choice => {
+      DEFAULT_EXPORT_QUALITY = choice;
+      storage.set('export-quality', choice);
+      events.emit('controls-quality', choice);
+      console.log(choice);
+    }).catch(err => {
+      events.emit('warn', err);
     });
   };
   const onShare = () => {
@@ -177,6 +203,7 @@ export default ({ events, mover, storage }) => {
   openInput.addEventListener('change', onOpen);
   crop.addEventListener('click', onCrop);
   draw.addEventListener('click', onDraw);
+  quality.addEventListener('click', onQuality);
   share.addEventListener('click', onShare);
   colorButtons.forEach(elem => elem.addEventListener('click', onColor));
   colorChangers.forEach(elem => elem.addEventListener('click', onColorChange));
@@ -193,6 +220,7 @@ export default ({ events, mover, storage }) => {
     openInput.removeEventListener('change', onOpen);
     crop.removeEventListener('click', onCrop);
     draw.removeEventListener('click', onDraw);
+    quality.removeEventListener('click', onQuality);
     share.removeEventListener('click', onShare);
     colorButtons.forEach(elem => elem.removeEventListener('click', onColor));
     colorChangers.forEach(elem => elem.removeEventListener('click', onColorChange));
