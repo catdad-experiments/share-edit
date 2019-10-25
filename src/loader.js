@@ -126,7 +126,7 @@ export default () => {
     ...modules
   ]) => {
     // set up a global event emitter
-    const context = { events: eventEmitter(), mover, storage };
+    const context = { events: eventEmitter(), menu, mover, storage };
     const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {
