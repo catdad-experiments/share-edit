@@ -101,7 +101,10 @@ export default ({ events, menu, mover, storage }) => {
       return;
     }
 
-    events.emit('file-load', { file: ev.target.files[0] });
+    events.emit('file-load', {
+      file: ev.target.files[0],
+      quality: DEFAULT_EXPORT_QUALITY
+    });
   };
 
   const onClick = () => void openInput.click();
