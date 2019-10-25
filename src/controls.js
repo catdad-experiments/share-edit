@@ -101,7 +101,7 @@ export default ({ events, menu, mover, storage }) => {
       return;
     }
 
-    events.emit('display-image', { file: ev.target.files[0] });
+    events.emit('file-load', { file: ev.target.files[0] });
   };
 
   const onClick = () => void openInput.click();
@@ -121,8 +121,7 @@ export default ({ events, menu, mover, storage }) => {
     showPalette('draw');
     events.emit('controls-draw', {
       color: DEFAULT_BRUSH_COLOR,
-      size: DEFAULT_BRUSH_SIZE,
-      quality: DEFAULT_EXPORT_QUALITY
+      size: DEFAULT_BRUSH_SIZE
     });
   };
   const onColor = () => {
@@ -165,7 +164,6 @@ export default ({ events, menu, mover, storage }) => {
       DEFAULT_EXPORT_QUALITY = choice;
       storage.set('export-quality', choice);
       events.emit('controls-quality', choice);
-      console.log(choice);
     }).catch(err => {
       events.emit('warn', err);
     });
@@ -197,6 +195,11 @@ export default ({ events, menu, mover, storage }) => {
     });
   };
 
+  const onFileShare = ({ file }) => void events.emit('file-load', {
+    file,
+    quality: DEFAULT_EXPORT_QUALITY
+  });
+
   help.addEventListener('click', onHelp);
   install.addEventListener('click', onInstall);
   open.addEventListener('click', onClick);
@@ -212,6 +215,7 @@ export default ({ events, menu, mover, storage }) => {
   cancelButtons.forEach(elem => elem.addEventListener('click', onCancel));
 
   events.on('can-install', onCanInstall);
+  events.on('file-share', onFileShare);
 
   return () => {
     help.removeEventListener('click', onHelp);
@@ -229,5 +233,6 @@ export default ({ events, menu, mover, storage }) => {
     cancelButtons.forEach(elem => elem.removeEventListener('click', onCancel));
 
     events.off('can-install', onCanInstall);
+    events.off('file-share', onFileShare);
   };
 };
