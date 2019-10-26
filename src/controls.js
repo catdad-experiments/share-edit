@@ -50,9 +50,10 @@ const brushSize = (elem, mover, size) => {
   });
 };
 
-export default ({ events, mover, storage }) => {
+export default ({ events, menu, mover, storage }) => {
   let DEFAULT_BRUSH_SIZE = storage.get('brush-size') || 0.02;
   let DEFAULT_BRUSH_COLOR = storage.get('brush-color') || '#000000';
+  let DEFAULT_EXPORT_QUALITY = storage.get('export-quality') || { mime: 'image/png', quality: 1 };
   let deferredPrompt;
 
   const palettes = new Map([
@@ -78,6 +79,7 @@ export default ({ events, mover, storage }) => {
   const crop = find('#crop');
   const draw = find('#draw');
   const share = find('#share');
+  const quality = find('#quality');
   const doneButtons = findAll('.controls [data-cmd=done]');
   const cancelButtons = findAll('.controls [data-cmd=cancel]');
   const colorButtons = findAll('.controls [data-cmd=color]');
@@ -99,7 +101,10 @@ export default ({ events, mover, storage }) => {
       return;
     }
 
-    events.emit('display-image', { file: ev.target.files[0] });
+    events.emit('file-load', {
+      file: ev.target.files[0],
+      quality: DEFAULT_EXPORT_QUALITY
+    });
   };
 
   const onClick = () => void openInput.click();
@@ -144,6 +149,28 @@ export default ({ events, mover, storage }) => {
       events.emit('controls-size', { size });
     });
   };
+  const onQuality = () => {
+    const choices = [
+      { mime: 'image/png', quality: 1, text: 'PNG at 100%' },
+      { mime: 'image/jpeg', quality: 1, text: 'JPG at 100%' },
+      { mime: 'image/jpeg', quality: 0.92, text: 'JPG at 92%' },
+      { mime: 'image/jpeg', quality: 0.8, text: 'JPG at 80%' },
+    ].map(choice => {
+      if (choice.mime === DEFAULT_EXPORT_QUALITY.mime && choice.quality === DEFAULT_EXPORT_QUALITY.quality) {
+        return Object.assign({ icon: 'check' }, choice);
+      }
+
+      return choice;
+    });
+
+    menu(...choices).then(choice => {
+      DEFAULT_EXPORT_QUALITY = choice;
+      storage.set('export-quality', choice);
+      events.emit('controls-quality', choice);
+    }).catch(err => {
+      events.emit('warn', err);
+    });
+  };
   const onShare = () => {
     events.emit('info', 'right-click or long-press to share or save');
   };
@@ -171,12 +198,18 @@ export default ({ events, mover, storage }) => {
     });
   };
 
+  const onFileShare = ({ file }) => void events.emit('file-load', {
+    file,
+    quality: DEFAULT_EXPORT_QUALITY
+  });
+
   help.addEventListener('click', onHelp);
   install.addEventListener('click', onInstall);
   open.addEventListener('click', onClick);
   openInput.addEventListener('change', onOpen);
   crop.addEventListener('click', onCrop);
   draw.addEventListener('click', onDraw);
+  quality.addEventListener('click', onQuality);
   share.addEventListener('click', onShare);
   colorButtons.forEach(elem => elem.addEventListener('click', onColor));
   colorChangers.forEach(elem => elem.addEventListener('click', onColorChange));
@@ -185,6 +218,7 @@ export default ({ events, mover, storage }) => {
   cancelButtons.forEach(elem => elem.addEventListener('click', onCancel));
 
   events.on('can-install', onCanInstall);
+  events.on('file-share', onFileShare);
 
   return () => {
     help.removeEventListener('click', onHelp);
@@ -193,6 +227,7 @@ export default ({ events, mover, storage }) => {
     openInput.removeEventListener('change', onOpen);
     crop.removeEventListener('click', onCrop);
     draw.removeEventListener('click', onDraw);
+    quality.removeEventListener('click', onQuality);
     share.removeEventListener('click', onShare);
     colorButtons.forEach(elem => elem.removeEventListener('click', onColor));
     colorChangers.forEach(elem => elem.removeEventListener('click', onColorChange));
@@ -201,5 +236,6 @@ export default ({ events, mover, storage }) => {
     cancelButtons.forEach(elem => elem.removeEventListener('click', onCancel));
 
     events.off('can-install', onCanInstall);
+    events.off('file-share', onFileShare);
   };
 };

@@ -43,8 +43,7 @@ if ('serviceWorker' in navigator) {
     }
 
     if (data.action === 'load-image') {
-      console.log('LOAD IMAGE!!');
-      events.emit('display-image', { file: data.file });
+      events.emit('file-share', { file: data.file });
     }
 
     console.log('worker message', ev.data);
@@ -71,7 +70,6 @@ export default () => {
 
   // detect missing features in the browser
   const missingFeatures = [
-    'navigator.serviceWorker',
     'Promise',
     'Map',
     'localStorage',
@@ -114,6 +112,7 @@ export default () => {
   Promise.all([
     load('./event-emitter.js'),
     load('./storage.js'),
+    load('./menu.js'),
     load('./mover.js'),
     load('./image.js'),
     load('./controls.js'),
@@ -121,11 +120,12 @@ export default () => {
   ]).then(([
     eventEmitter,
     storage,
+    menu,
     mover,
     ...modules
   ]) => {
     // set up a global event emitter
-    const context = { events: eventEmitter(), mover, storage };
+    const context = { events: eventEmitter(), menu, mover, storage };
     const destroys = modules.map(mod => mod(context));
 
     context.events.on('error', function (err) {

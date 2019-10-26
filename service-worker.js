@@ -3,7 +3,7 @@
 
 // this is needed to create a binary-different file when
 // I don't need to make any actual changes to this file
-const VERSION = 'v1.0.1';
+const VERSION = 'v1.0.2';
 const WORKER = '👷';
 const KEY = 'share-edit-v1';
 const PATHS = [
@@ -13,6 +13,7 @@ const PATHS = [
   './src/toast.js',
   './src/event-emitter.js',
   './src/storage.js',
+  './src/menu.js',
   './src/mover.js',
   './src/image.js',
   './src/controls.js',
@@ -36,8 +37,6 @@ const serveShareTarget = event => {
   event.respondWith(Response.redirect(event.request.url));
 
   event.waitUntil(async function () {
-    // nextMessage('share-ready');
-
     const data = await event.request.formData();
     const client = await self.clients.get(event.resultingClientId);
     const file = data.get('file');
@@ -47,16 +46,10 @@ const serveShareTarget = event => {
 
 const createCache = async () => {
   const cache = await caches.open(KEY);
-
-  for (let i in cache) {
-    console.log(i, typeof cache[i]);
-  }
-
   await cache.addAll(PATHS);
 };
 
 const clearCache = async () => {
-  log('CLEARING CACHE');
   await caches.delete(KEY);
 };
 

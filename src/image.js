@@ -253,10 +253,10 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   });
 };
 
-const getBlob = (canvas) => {
+const getBlob = (canvas, { mime = 'image/png', quality = 1 } = {}) => {
   return new Promise((resolve, reject) => {
     try {
-      canvas.toBlob(blob => resolve(blob), 'image/png');
+      canvas.toBlob(blob => resolve(blob), mime, quality);
     } catch (e) {
       reject(e);
     }
@@ -284,6 +284,7 @@ export default ({ events, mover }) => {
   const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
   const ctx = canvas.getContext('2d');
+  let exportQuality;
   let activeTool;
   let width;
   let height;
@@ -298,8 +299,7 @@ export default ({ events, mover }) => {
       }
 
       try {
-        const blob = await getBlob(canvas);
-        const url = URL.createObjectURL(blob);
+        url = URL.createObjectURL(await getBlob(canvas, exportQuality));
         await loadUrl(hiddenImg, url);
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -316,7 +316,8 @@ export default ({ events, mover }) => {
     onUpdate();
   };
 
-  const onFile = async ({ file }) => {
+  const onFile = async ({ file, quality }) => {
+    exportQuality = quality;
     onCancel();
 
     const img = new Image();
@@ -355,6 +356,11 @@ export default ({ events, mover }) => {
     } finally {
       URL.revokeObjectURL(url);
     }
+  };
+
+  const onQuality = (quality) => {
+    exportQuality = quality;
+    onUpdate();
   };
 
   const onCrop = () => {
@@ -409,7 +415,8 @@ export default ({ events, mover }) => {
     }
   };
 
-  events.on('display-image', onFile);
+  events.on('file-load', onFile);
+  events.on('controls-quality', onQuality);
   events.on('controls-crop', onCrop);
   events.on('controls-draw', onDraw);
   events.on('controls-color', onColor);
@@ -418,7 +425,8 @@ export default ({ events, mover }) => {
   events.on('controls-cancel', onCancel);
 
   return function destroy() {
-    events.off('display-image', onFile);
+    events.off('file-load', onFile);
+    events.off('controls-quality', onQuality);
     events.off('controls-crop', onCrop);
     events.off('controls-draw', onDraw);
     events.off('controls-color', onColor);
