@@ -163,10 +163,10 @@ export default ({ events, menu, mover, storage }) => {
       return choice;
     });
 
-    menu(...choices).then(choice => {
-      DEFAULT_EXPORT_QUALITY = choice;
-      storage.set('export-quality', choice);
-      events.emit('controls-quality', choice);
+    menu(...choices).then(({ mime, quality }) => {
+      DEFAULT_EXPORT_QUALITY = { mime, quality };
+      storage.set('export-quality', DEFAULT_EXPORT_QUALITY);
+      events.emit('controls-quality', DEFAULT_EXPORT_QUALITY);
     }).catch(err => {
       events.emit('warn', err);
     });
