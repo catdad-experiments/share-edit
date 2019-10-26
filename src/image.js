@@ -299,8 +299,7 @@ export default ({ events, mover }) => {
       }
 
       try {
-        const blob = await getBlob(canvas, exportQuality);
-        const url = URL.createObjectURL(blob);
+        url = URL.createObjectURL(await getBlob(canvas, exportQuality));
         await loadUrl(hiddenImg, url);
       } catch (e) {
         // eslint-disable-next-line no-console
