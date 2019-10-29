@@ -16,6 +16,8 @@ const PATHS = [
   './src/menu.js',
   './src/mover.js',
   './src/image.js',
+  './src/image-crop.js',
+  './src/image-draw.js',
   './src/controls.js',
   './src/window-size.js',
   // style and assets

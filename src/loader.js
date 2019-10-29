@@ -80,6 +80,14 @@ export default () => {
       } catch (err) {
         return false;
       }
+    }],
+    ['async/await', () => {
+      try {
+        new Function('async () => {}');
+        return true;
+      } catch (err) {
+        return false;
+      }
     }]
   ].filter(function (name) {
     if (Array.isArray(name)) {
@@ -108,6 +116,16 @@ export default () => {
     return (new Function(`return import('${name}')`))().then(m => m.default);
   }
 
+  async function map(arr, func) {
+    const results = [];
+
+    for (let i = 0; i < arr.length; i++) {
+      results.push(await func(arr[i], i, arr));
+    }
+
+    return results;
+  }
+
   // load all the modules from the server directly
   Promise.all([
     load('./event-emitter.js'),
@@ -117,7 +135,7 @@ export default () => {
     load('./image.js'),
     load('./controls.js'),
     load('./window-size.js'),
-  ]).then(([
+  ]).then(async ([
     eventEmitter,
     storage,
     menu,
@@ -125,8 +143,8 @@ export default () => {
     ...modules
   ]) => {
     // set up a global event emitter
-    const context = { events: eventEmitter(), menu, mover, storage };
-    const destroys = modules.map(mod => mod(context));
+    const context = { events: eventEmitter(), menu, mover, storage, load };
+    const destroys = await map(modules, mod => mod(context));
 
     context.events.on('error', function (err) {
       onError(err, -1);
