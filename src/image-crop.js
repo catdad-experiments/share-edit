@@ -142,9 +142,11 @@ const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
     div.remove();
   };
 
+  const undo = () => {};
+
   renderer.appendChild(div);
 
-  return { done, cancel };
+  return { done, cancel, undo };
 };
 
 export default cropTool;

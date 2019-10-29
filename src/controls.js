@@ -85,6 +85,7 @@ export default ({ events, menu, mover, storage }) => {
   const colorButtons = findAll('.controls [data-cmd=color]');
   const colorChangers = findAll('.controls [data-color]');
   const sizeButtons = findAll('.controls [data-cmd=size]');
+  const undoButtons = findAll('.controls [data-cmd=undo]');
 
   const help = find('#help');
 
@@ -115,6 +116,9 @@ export default ({ events, menu, mover, storage }) => {
   const onCancel = () => {
     showPalette('general');
     events.emit('controls-cancel');
+  };
+  const onUndo = () => {
+    events.emit('controls-undo');
   };
   const onCrop = () => {
     showPalette('crop');
@@ -216,6 +220,7 @@ export default ({ events, menu, mover, storage }) => {
   sizeButtons.forEach(elem => elem.addEventListener('click', onSize));
   doneButtons.forEach(elem => elem.addEventListener('click', onDone));
   cancelButtons.forEach(elem => elem.addEventListener('click', onCancel));
+  undoButtons.forEach(elem => elem.addEventListener('click', onUndo));
 
   events.on('can-install', onCanInstall);
   events.on('file-share', onFileShare);
@@ -234,6 +239,7 @@ export default ({ events, menu, mover, storage }) => {
     sizeButtons.forEach(elem => elem.removeEventListener('click', onSize));
     doneButtons.forEach(elem => elem.removeEventListener('click', onDone));
     cancelButtons.forEach(elem => elem.removeEventListener('click', onCancel));
+    undoButtons.forEach(elem => elem.removeEventListener('click', onUndo));
 
     events.off('can-install', onCanInstall);
     events.off('file-share', onFileShare);

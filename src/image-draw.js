@@ -77,8 +77,9 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
     div.remove();
     update({ data: stack[0] });
   };
+  const undo = () => {};
 
-  return Object.defineProperties({ done, cancel }, {
+  return Object.defineProperties({ done, cancel, undo }, {
     color: {
       configurable: false,
       enumerable: true,
