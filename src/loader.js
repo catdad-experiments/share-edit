@@ -80,6 +80,14 @@ export default () => {
       } catch (err) {
         return false;
       }
+    }],
+    ['async/await', () => {
+      try {
+        new Function('async () => {}');
+        return true;
+      } catch (err) {
+        return false;
+      }
     }]
   ].filter(function (name) {
     if (Array.isArray(name)) {
