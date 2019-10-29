@@ -69,6 +69,10 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
 
   renderer.appendChild(div);
 
+  const loadData = (data) => {
+    ctx.putImageData(data, 0, 0);
+  };
+
   const done = () => {
     div.remove();
     update({ data: stack.pop() });
@@ -77,7 +81,12 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
     div.remove();
     update({ data: stack[0] });
   };
-  const undo = () => {};
+  const undo = () => {
+    if (stack.length > 1) {
+      stack.pop();
+      loadData(stack.slice(-1)[0]);
+    }
+  };
 
   return Object.defineProperties({ done, cancel, undo }, {
     color: {
