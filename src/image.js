@@ -175,6 +175,12 @@ export default async ({ events, mover, load }) => {
     }
   };
 
+  const onUndo = () => {
+    if (activeTool) {
+      activeTool.undo();
+    }
+  };
+
   events.on('file-load', onFile);
   events.on('controls-quality', onQuality);
   events.on('controls-crop', onCrop);
@@ -183,6 +189,7 @@ export default async ({ events, mover, load }) => {
   events.on('controls-size', onSize);
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
+  events.on('controls-undo', onUndo);
 
   return function destroy() {
     events.off('file-load', onFile);
@@ -193,5 +200,6 @@ export default async ({ events, mover, load }) => {
     events.off('controls-size', onSize);
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
+    events.off('controls-undo', onUndo);
   };
 };
