@@ -92,6 +92,11 @@ export default async ({ events, mover, load }) => {
     ctx.rotate(radians);
     ctx.drawImage(tmp, -1 * w / 2, -1 * h / 2);
     ctx.setTransform(1,0,0,1,0,0);
+
+    if (activeTool) {
+      activeTool.rotate();
+    }
+
     onUpdate();
   };
 

@@ -1,6 +1,6 @@
 const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
-  const bb = renderer.getBoundingClientRect();
-  const ratio = canvas.width / bb.width;
+  let bb = renderer.getBoundingClientRect();
+  let ratio = canvas.width / bb.width;
   // note: these defaults don't actually matter, because they
   // are always set by the controls
   let color = '#000000';
@@ -87,8 +87,12 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       loadData(stack.slice(-1)[0]);
     }
   };
+  const rotate = () => {
+    bb = renderer.getBoundingClientRect();
+    ratio = canvas.width / bb.width;
+  };
 
-  return Object.defineProperties({ done, cancel, undo }, {
+  return Object.defineProperties({ done, cancel, undo, rotate }, {
     color: {
       configurable: false,
       enumerable: true,
