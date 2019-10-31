@@ -76,6 +76,25 @@ export default async ({ events, mover, load }) => {
     onUpdate();
   };
 
+  const onRotate = () => {
+    const radians = 270*Math.PI/180;
+    const tmp = document.createElement('canvas');
+    const w = tmp.width = width;
+    const h = tmp.height = height;
+
+    const data = ctx.getImageData(0, 0, width, height);
+    tmp.getContext('2d').putImageData(data, 0, 0);
+
+    canvas.width = width = h;
+    canvas.height = height = w;
+
+    ctx.translate(width/2,height/2);
+    ctx.rotate(radians);
+    ctx.drawImage(tmp, -1 * w / 2, -1 * h / 2);
+    ctx.setTransform(1,0,0,1,0,0);
+    onUpdate();
+  };
+
   const onFile = async ({ file, quality }) => {
     exportQuality = quality;
     onCancel();
@@ -184,6 +203,7 @@ export default async ({ events, mover, load }) => {
   events.on('file-load', onFile);
   events.on('controls-quality', onQuality);
   events.on('controls-crop', onCrop);
+  events.on('controls-rotate', onRotate);
   events.on('controls-draw', onDraw);
   events.on('controls-color', onColor);
   events.on('controls-size', onSize);
@@ -195,6 +215,7 @@ export default async ({ events, mover, load }) => {
     events.off('file-load', onFile);
     events.off('controls-quality', onQuality);
     events.off('controls-crop', onCrop);
+    events.off('controls-rotate', onRotate);
     events.off('controls-draw', onDraw);
     events.off('controls-color', onColor);
     events.off('controls-size', onSize);
