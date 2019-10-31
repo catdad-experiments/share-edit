@@ -76,8 +76,22 @@ export default async ({ events, mover, load }) => {
     onUpdate();
   };
 
+  const drawRotated = (img, degrees, w, h) => {
+    if (degrees !== 180) {
+      canvas.width = width = h;
+      canvas.height = height = w;
+    }
+
+    ctx.translate(width/2,height/2);
+
+    ctx.rotate(degrees*Math.PI/180);
+    ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
+
+    // reset the canvas context
+    ctx.setTransform(1,0,0,1,0,0);
+  };
+
   const onRotate = () => {
-    const radians = 270*Math.PI/180;
     const tmp = document.createElement('canvas');
     const w = tmp.width = width;
     const h = tmp.height = height;
@@ -85,13 +99,7 @@ export default async ({ events, mover, load }) => {
     const data = ctx.getImageData(0, 0, width, height);
     tmp.getContext('2d').putImageData(data, 0, 0);
 
-    canvas.width = width = h;
-    canvas.height = height = w;
-
-    ctx.translate(width/2,height/2);
-    ctx.rotate(radians);
-    ctx.drawImage(tmp, -1 * w / 2, -1 * h / 2);
-    ctx.setTransform(1,0,0,1,0,0);
+    drawRotated(tmp, 270, w, h);
 
     if (activeTool) {
       activeTool.rotate();
@@ -116,23 +124,11 @@ export default async ({ events, mover, load }) => {
       canvas.height = height = h;
 
       if (orientations[orientation]) {
-        const degrees = orientations[orientation];
-
-        if (degrees !== 180) {
-          canvas.width = width = h;
-          canvas.height = height = w;
-        }
-
-        ctx.translate(width/2,height/2);
-
-        ctx.rotate(degrees*Math.PI/180);
-        ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
+        drawRotated(img, orientations[orientation], w, h);
       } else {
         ctx.drawImage(img, 0, 0);
       }
 
-      // reset the canvas context
-      ctx.setTransform(1,0,0,1,0,0);
 
       onUpdate();
     } catch (e) {
