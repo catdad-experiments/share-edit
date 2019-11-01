@@ -86,6 +86,7 @@ export default ({ events, menu, mover, storage }) => {
   const colorChangers = findAll('.controls [data-color]');
   const sizeButtons = findAll('.controls [data-cmd=size]');
   const undoButtons = findAll('.controls [data-cmd=undo]');
+  const rotateButtons = findAll('.controls [data-cmd=rotate]');
 
   const help = find('#help');
 
@@ -119,6 +120,9 @@ export default ({ events, menu, mover, storage }) => {
   };
   const onUndo = () => {
     events.emit('controls-undo');
+  };
+  const onRotate = () => {
+    events.emit('controls-rotate');
   };
   const onCrop = () => {
     showPalette('crop');
@@ -215,6 +219,7 @@ export default ({ events, menu, mover, storage }) => {
   draw.addEventListener('click', onDraw);
   quality.addEventListener('click', onQuality);
   share.addEventListener('click', onShare);
+  rotateButtons.forEach(elem => elem.addEventListener('click', onRotate));
   colorButtons.forEach(elem => elem.addEventListener('click', onColor));
   colorChangers.forEach(elem => elem.addEventListener('click', onColorChange));
   sizeButtons.forEach(elem => elem.addEventListener('click', onSize));
@@ -234,6 +239,7 @@ export default ({ events, menu, mover, storage }) => {
     draw.removeEventListener('click', onDraw);
     quality.removeEventListener('click', onQuality);
     share.removeEventListener('click', onShare);
+    rotateButtons.forEach(elem => elem.removeEventListener('click', onRotate));
     colorButtons.forEach(elem => elem.removeEventListener('click', onColor));
     colorChangers.forEach(elem => elem.removeEventListener('click', onColorChange));
     sizeButtons.forEach(elem => elem.removeEventListener('click', onSize));
