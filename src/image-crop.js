@@ -1,6 +1,6 @@
 const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
-  const { width, height } = canvas;
-  const bb = renderer.getBoundingClientRect();
+  let { width, height } = canvas;
+  let bb = renderer.getBoundingClientRect();
   const color = '#039be5';
   const div = document.createElement('div');
   Object.assign(div.style, {
@@ -144,9 +144,14 @@ const cropTool = ({ canvas, ctx, renderer, update, mover }) => {
 
   const undo = () => {};
 
+  const rotate = () => {
+    ({ width, height } = canvas);
+    bb = renderer.getBoundingClientRect();
+  };
+
   renderer.appendChild(div);
 
-  return { done, cancel, undo };
+  return { done, cancel, undo, rotate };
 };
 
 export default cropTool;

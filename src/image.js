@@ -76,6 +76,41 @@ export default async ({ events, mover, load }) => {
     onUpdate();
   };
 
+  const drawRotated = (img, degrees) => {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+
+    if (degrees !== 180) {
+      canvas.width = width = h;
+      canvas.height = height = w;
+    }
+
+    ctx.translate(width/2,height/2);
+
+    ctx.rotate(degrees*Math.PI/180);
+    ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
+
+    // reset the canvas context
+    ctx.setTransform(1,0,0,1,0,0);
+  };
+
+  const onRotate = () => {
+    const tmp = document.createElement('canvas');
+    tmp.width = width;
+    tmp.height = height;
+
+    const data = ctx.getImageData(0, 0, width, height);
+    tmp.getContext('2d').putImageData(data, 0, 0);
+
+    drawRotated(tmp, 270);
+
+    if (activeTool) {
+      activeTool.rotate();
+    }
+
+    onUpdate();
+  };
+
   const onFile = async ({ file, quality }) => {
     exportQuality = quality;
     onCancel();
@@ -92,23 +127,11 @@ export default async ({ events, mover, load }) => {
       canvas.height = height = h;
 
       if (orientations[orientation]) {
-        const degrees = orientations[orientation];
-
-        if (degrees !== 180) {
-          canvas.width = width = h;
-          canvas.height = height = w;
-        }
-
-        ctx.translate(width/2,height/2);
-
-        ctx.rotate(degrees*Math.PI/180);
-        ctx.drawImage(img, -1 * w / 2, -1 * h / 2);
+        drawRotated(img, orientations[orientation]);
       } else {
         ctx.drawImage(img, 0, 0);
       }
 
-      // reset the canvas context
-      ctx.setTransform(1,0,0,1,0,0);
 
       onUpdate();
     } catch (e) {
@@ -184,6 +207,7 @@ export default async ({ events, mover, load }) => {
   events.on('file-load', onFile);
   events.on('controls-quality', onQuality);
   events.on('controls-crop', onCrop);
+  events.on('controls-rotate', onRotate);
   events.on('controls-draw', onDraw);
   events.on('controls-color', onColor);
   events.on('controls-size', onSize);
@@ -195,6 +219,7 @@ export default async ({ events, mover, load }) => {
     events.off('file-load', onFile);
     events.off('controls-quality', onQuality);
     events.off('controls-crop', onCrop);
+    events.off('controls-rotate', onRotate);
     events.off('controls-draw', onDraw);
     events.off('controls-color', onColor);
     events.off('controls-size', onSize);
