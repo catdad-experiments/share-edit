@@ -50,10 +50,10 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       const last = points[points.length - 1];
 
       ctx.quadraticCurveTo(
-        last.x,
-        last.y,
         (first.x + last.x) / 2,
-        (first.y + last.y) / 2
+        (first.y + last.y) / 2,
+        last.x,
+        last.y
       );
       ctx.stroke();
     },
