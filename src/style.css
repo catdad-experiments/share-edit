@@ -196,7 +196,7 @@ html, body {
 .color-icon {
   --count: 10;
   --margin: 10px;
-  --maxsize: calc(var(--limit) * 0.8);
+  --maxsize: calc(var(--limit) * 0.7);
   display: inline-block;
   float: left;
   border: 1px solid white;
