@@ -3,7 +3,7 @@
 
 // this is needed to create a binary-different file when
 // I don't need to make any actual changes to this file
-const VERSION = 'v1.0.5';
+const VERSION = 'v1.0.6';
 const WORKER = '👷';
 const KEY = 'share-edit-v1';
 const PATHS = [

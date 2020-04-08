@@ -22,6 +22,7 @@ html, body {
   font-family: sans-serif;
   color: var(--foreground);
   line-height: 1.2;
+  overflow-y: hidden;
 }
 
 * {
@@ -78,17 +79,17 @@ html, body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: calc(100vh - var(--controls-height));
+  overflow: hidden;
   align-items: center;
   justify-content: center;
-  padding-bottom: var(--controls-height)
 }
 
 .controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: relative;
+  flex-grow: 0;
   height: var(--controls-height);
+  overflow: hidden;
   width: 100%;
 }
 
@@ -131,11 +132,6 @@ html, body {
   height: 100%;
   background: var(--background);
   user-select: none;
-  max-width: var(--limit);
-  margin: auto;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(var(--lvl2), var(--background) 60%);
-  box-shadow: 0 -7px 8px -10px black;
 }
 
 .renderer {
@@ -242,12 +238,6 @@ html, body {
 
 .menu > ul > li > i {
   padding-right: 0.5em;
-}
-
-.menu > ul > li.meta {
-  opacity: 0.75;
-  font-weight: bold;
-  justify-content: center;
 }
 
 /* SLIDER */
