@@ -120,18 +120,21 @@ export default async ({ events, mover, load }) => {
 
     try {
       await loadUrl(img, url);
-      const { Orientation: orientation } = await readExif(img);
+      const { Orientation: orientation, ImageWidth, ImageHeight } = await readExif(img);
       const { naturalWidth: w, naturalHeight: h } = img;
 
       canvas.width = width = w;
       canvas.height = height = h;
 
-      if (orientations[orientation]) {
+      // so... Chrome used to not rotate images (v80) and now both Chrome and Firefox
+      // automagically rotates them for you (v83)... so... I guess let's do our best
+      // this leaves out 180 degree images, but I have yet to find a camera that
+      // creates those... and still they will only be wrong in older browsers now
+      if (orientations[orientation] && ImageWidth === width && ImageHeight === height) {
         drawRotated(img, orientations[orientation]);
       } else {
         ctx.drawImage(img, 0, 0);
       }
-
 
       onUpdate();
     } catch (e) {
