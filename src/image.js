@@ -40,6 +40,7 @@ export default async ({ events, mover, load }) => {
     load('./image-draw.js')
   ]);
 
+  const mainDisplay = document.querySelector('.main');
   const renderer = document.querySelector('.renderer');
   const hiddenImg = document.querySelector('.hidden-image');
   const canvas = document.querySelector('#canvas');
@@ -49,6 +50,22 @@ export default async ({ events, mover, load }) => {
   let width;
   let height;
 
+  const onUpdateSize = () => {
+    const mainBB = mainDisplay.getBoundingClientRect();
+    const widthMax = Math.min(canvas.width, mainBB.width * 0.96);
+    const heightMax = Math.min(canvas.height, mainBB.height * 0.96);
+
+    if (canvas.height * widthMax / canvas.width > heightMax) {
+      canvas.style.height = `${heightMax}px`;
+      canvas.style.width = 'auto';
+    } else if (widthMax < canvas.width) {
+      canvas.style.height = 'auto';
+      canvas.style.width = `${widthMax}px`;
+    } else {
+      canvas.style.width = canvas.style.height = 'auto';
+    }
+  };
+
   const onUpdate = (() => {
     let url;
 
@@ -57,6 +74,8 @@ export default async ({ events, mover, load }) => {
         URL.revokeObjectURL(url);
         url = null;
       }
+
+      onUpdateSize();
 
       try {
         url = URL.createObjectURL(await getBlob(canvas, exportQuality));
@@ -217,6 +236,7 @@ export default async ({ events, mover, load }) => {
   events.on('controls-done', onDone);
   events.on('controls-cancel', onCancel);
   events.on('controls-undo', onUndo);
+  events.on('window-resize', onUpdateSize);
 
   return function destroy() {
     events.off('file-load', onFile);
@@ -229,5 +249,6 @@ export default async ({ events, mover, load }) => {
     events.off('controls-done', onDone);
     events.off('controls-cancel', onCancel);
     events.off('controls-undo', onUndo);
+    events.off('window-resize', onUpdateSize);
   };
 };
