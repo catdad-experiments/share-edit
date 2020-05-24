@@ -137,8 +137,6 @@ html, body {
 .renderer {
   display: block;
   position: relative;
-  max-width: 96%;
-  max-height: 96%;
 }
 
 .hidden-image {
