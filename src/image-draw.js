@@ -1,3 +1,6 @@
+import { getStroke } from 'https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.0/+esm';
+import { getSvgPathFromStroke } from './getSvgPathFromStroke.js';
+
 const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
   let bb = renderer.getBoundingClientRect();
   let ratio = canvas.width / bb.width;
@@ -26,7 +29,7 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       y: (ev.clientY - bb.top) * ratio
     });
 
-    if (points.length > 2) {
+    if (points.length > 3) {
       points.shift();
     }
   };
@@ -39,6 +42,7 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       ctx.miterLimit = 1;
       ctx.lineWidth = Math.floor(canvas.width * size);
       ctx.strokeStyle = color;
+      ctx.fillStyle = color;
 
       point(ev);
       ctx.moveTo(points[0].x, points[0].y);
@@ -49,13 +53,25 @@ const drawTool = ({ canvas, ctx, renderer, update, mover }) => {
       const first = points[0];
       const last = points[points.length - 1];
 
-      ctx.quadraticCurveTo(
-        (first.x + last.x) / 2,
-        (first.y + last.y) / 2,
-        last.x,
-        last.y
-      );
-      ctx.stroke();
+      const stroke = getStroke(points.map(({ x, y }) => [x, y]), {
+        size: Math.floor(canvas.width * size),
+        // thinning: 0.5,
+        // smoothing: 0.5,
+        // streamline: 0.5,
+      });
+      const path = new Path2D(getSvgPathFromStroke(stroke));
+
+      ctx.fill(path);
+
+      // console.log(path);
+
+      // ctx.quadraticCurveTo(
+      //   (first.x + last.x) / 2,
+      //   (first.y + last.y) / 2,
+      //   last.x,
+      //   last.y
+      // );
+      // ctx.stroke();
     },
     end() {
       while (points.length) {

@@ -8,8 +8,6 @@ const orientations = {
   '8': 270
 };
 
-const RENDER_RATIO = 0.96;
-
 const getBlob = (canvas, { mime = 'image/png', quality = 1 } = {}) => {
   return new Promise((resolve, reject) => {
     try {
@@ -54,18 +52,12 @@ export default async ({ events, mover, load }) => {
 
   const onUpdateSize = () => {
     const mainBB = mainDisplay.getBoundingClientRect();
-    const widthMax = Math.min(canvas.width, mainBB.width * RENDER_RATIO);
-    const heightMax = Math.min(canvas.height, mainBB.height * RENDER_RATIO);
+    const padding = 10;
+    const { width, height } = canvas;
+    const scale = Math.min(1, (mainBB.width - padding - padding) / width, (mainBB.height - padding - padding) / height);
 
-    if (canvas.height * widthMax / canvas.width > heightMax) {
-      canvas.style.height = `${heightMax}px`;
-      canvas.style.width = 'auto';
-    } else if (widthMax < canvas.width) {
-      canvas.style.height = 'auto';
-      canvas.style.width = `${widthMax}px`;
-    } else {
-      canvas.style.width = canvas.style.height = 'auto';
-    }
+    canvas.style.width = `${width * scale}px`;
+    canvas.style.height = `${height * scale}px`;
   };
 
   const onUpdate = (() => {

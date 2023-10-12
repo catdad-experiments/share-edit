@@ -30,6 +30,7 @@ const PATHS = [
   'https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.css',
   'https://cdn.jsdelivr.net/npm/toastify-js@1.6.1/src/toastify.min.js',
   'https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.min.js',
+  'https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.0/+esm',
 ];
 
 const log = (...args) => console.log(WORKER, VERSION, ...args);
