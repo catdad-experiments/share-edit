@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx multispawn npx serve -l 8000 ! npx localtunnel --port 8000"
+    "start": "npx xpos --no-cache"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,6 @@
   "homepage": "https://github.com/catdad-experiments/share-edit#readme",
   "devDependencies": {
     "eslint": "^5.16.0",
-    "localtunnel": "^2.0.2",
-    "multispawn": "^1.0.0",
-    "serve": "^14.2.0"
+    "xpos": "https://github.com/catdad-experiments/xpos/tarball/997d3006f916e5a5f22e7367ec6f0c36dcd7685a"
   }
 }
