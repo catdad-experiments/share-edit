@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx xpos"
+    "start": "npx xpos --no-cache"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,6 @@
   "homepage": "https://github.com/catdad-experiments/share-edit#readme",
   "devDependencies": {
     "eslint": "^5.16.0",
-    "xpos": "https://github.com/catdad-experiments/xpos/tarball/a546f3a11249b70e68305319ca79b3f47a902848"
+    "xpos": "https://github.com/catdad-experiments/xpos/tarball/997d3006f916e5a5f22e7367ec6f0c36dcd7685a"
   }
 }
