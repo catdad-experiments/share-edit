@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/catdad-experiments/share-edit#readme",
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "eslint": "^9.39.1",
     "xpos": "https://github.com/catdad-experiments/xpos/tarball/997d3006f916e5a5f22e7367ec6f0c36dcd7685a"
   }
 }
